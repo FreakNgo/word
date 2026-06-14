@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antify Docs - Premium Word Processor</title>
+    <title>Antify Docs - Word Processor</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* Premium Office 365 Theme */
         :root {
-            --primary-blue: #185abd;
+            --ms-blue: #185abd;
             --ribbon-bg: #f3f2f1;
             --toolbar-bg: #ffffff;
-            --border-color: #e1dfdd;
+            --border-color: #d2d0ce;
             --page-bg: #eaeaea;
-            --text-color: #323130;
-            --hover-color: #e1dfdd;
-            --active-color: #c8c6c4;
+            --text-dark: #323130;
+            --hover-bg: #edebe9;
         }
 
         * {
@@ -29,213 +29,207 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Open Sans', 'Segoe UI', Tahoma, sans-serif;
             background-color: var(--page-bg);
-            color: var(--text-color);
-            overflow: hidden; 
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
         }
 
-        /* --- CINEMATIC INTRO SCREEN --- */
+        /* --- FIXED INTRO: Sits completely on top, then slides out safely --- */
         #intro-screen {
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: #000;
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh;
+            background-color: #05050a;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
-            animation: fadeOutScreen 0.5s ease 3.5s forwards;
+            z-index: 99999;
+            transition: transform 0.6s cubic-bezier(0.1, 1, 0.1, 1), opacity 0.4s ease;
         }
 
         .cinematic-text {
-            font-size: 10vw;
-            font-weight: 900;
-            letter-spacing: 10px;
+            font-size: 72px;
+            font-weight: 800;
+            letter-spacing: 8px;
             background: linear-gradient(
                 90deg, 
-                #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000
+                #ff5252, #ff793f, #ffb142, #33d9b2, #34ace0, #706fd3, #ff5252
             );
-            background-size: 200% auto;
+            background-size: 300% auto;
             color: transparent;
             -webkit-background-clip: text;
             background-clip: text;
-            animation: shine 2s linear infinite, scaleUp 3.5s ease-out forwards;
-            opacity: 0;
+            animation: liquidRainbow 3s linear infinite, scaleIntro 3s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+            text-align: center;
         }
 
-        @keyframes shine { to { background-position: 200% center; } }
-        @keyframes scaleUp {
-            0% { transform: scale(0.8); opacity: 0; filter: blur(10px); }
+        @keyframes liquidRainbow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        @keyframes scaleIntro {
+            0% { transform: scale(0.85); opacity: 0; filter: blur(12px); }
             20% { opacity: 1; filter: blur(0px); }
-            80% { opacity: 1; transform: scale(1.1); filter: blur(0px); }
-            100% { opacity: 0; transform: scale(1.2); filter: blur(5px); }
+            80% { opacity: 1; transform: scale(1.03); }
+            100% { opacity: 1; transform: scale(1); }
         }
-        @keyframes fadeOutScreen { to { opacity: 0; visibility: hidden; } }
 
-        /* --- MAIN APP UI --- */
+        /* --- MAIN WORD APPLICATION INTERFACE --- */
         #app-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
-            opacity: 0;
-            animation: fadeInApp 1s ease 3.8s forwards;
+            width: 100vw;
         }
-        @keyframes fadeInApp { to { opacity: 1; } }
 
-        /* Top Header */
         .header {
-            background-color: var(--primary-blue);
+            background-color: var(--ms-blue);
             color: white;
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            z-index: 10;
+            justify-content: space-between;
+            font-weight: 600;
         }
-        .header .app-name { font-weight: 600; letter-spacing: 1px; font-size: 16px; }
 
-        /* Ribbon Toolbar */
         .ribbon {
-            background-color: var(--ribbon-bg);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            z-index: 5;
-        }
-        .ribbon-tabs {
-            display: flex;
             background-color: var(--toolbar-bg);
             border-bottom: 1px solid var(--border-color);
         }
+
+        .ribbon-tabs {
+            display: flex;
+            background: #faf9f8;
+            padding-left: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
         .tab {
-            padding: 8px 20px;
+            padding: 10px 20px;
             font-size: 13px;
             cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: background 0.2s;
-        }
-        .tab:hover { background-color: var(--hover-color); }
-        .tab.active {
-            border-bottom: 2px solid var(--primary-blue);
-            color: var(--primary-blue);
             font-weight: 600;
-            background-color: var(--ribbon-bg);
+            color: #595959;
+            border-bottom: 3px solid transparent;
         }
-        
+
+        .tab.active {
+            border-bottom: 3px solid var(--ms-blue);
+            color: var(--ms-blue);
+        }
+
         .toolbar {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
             padding: 10px 16px;
             background-color: var(--ribbon-bg);
             align-items: center;
         }
 
-        /* Tool groups and buttons */
         .tool-group {
             display: flex;
             align-items: center;
             gap: 4px;
-            border-right: 1px solid #ccc;
-            padding-right: 12px;
+            border-right: 1px solid #d2d0ce;
+            padding-right: 10px;
             margin-right: 4px;
         }
 
         .tool-btn {
-            background: none;
+            background: transparent;
             border: 1px solid transparent;
             padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
-            color: var(--text-color);
-            font-size: 14px;
-            font-family: inherit;
+            color: var(--text-dark);
+            font-size: 13px;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-            font-weight: 600;
+            gap: 4px;
         }
-        .tool-btn:hover { background-color: var(--hover-color); border: 1px solid #ccc;}
-        .tool-btn:active { background-color: var(--active-color); }
-        .tool-btn.bold { font-weight: 800; }
-        .tool-btn.italic { font-style: italic; }
-        .tool-btn.underline { text-decoration: underline; }
+
+        .tool-btn:hover {
+            background-color: var(--hover-bg);
+            border: 1px solid #c8c6c4;
+        }
 
         select {
             padding: 6px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             background: white;
-            cursor: pointer;
             font-family: inherit;
             font-size: 13px;
             height: 32px;
+            outline: none;
         }
 
-        input[type="color"] {
-            padding: 0;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-            height: 30px;
-            width: 30px;
-        }
-
-        .color-label {
-            font-size: 11px;
-            color: #666;
+        .color-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
+            font-size: 10px;
+            font-weight: 700;
         }
 
-        /* Workspace & Page */
+        input[type="color"] {
+            border: none;
+            width: 28px;
+            height: 20px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        /* WORKSPACE CANVAS SHEET */
         .workspace {
             flex-grow: 1;
             overflow-y: auto;
             padding: 40px 20px;
             display: flex;
             justify-content: center;
-            background-color: #e2e2e2;
         }
 
         .page {
             background-color: white;
             width: 100%;
-            max-width: 816px; 
-            min-height: 1056px;
-            padding: 96px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 812px;
+            min-height: 1048px;
+            padding: 90px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
             outline: none;
-            font-family: 'Arial', sans-serif;
             font-size: 16px;
             line-height: 1.6;
-            color: #000;
+            color: #000000;
+            word-wrap: break-word;
         }
 
         .page img {
             max-width: 100%;
             height: auto;
-            cursor: pointer;
-            margin: 10px 0;
-            border: 1px solid transparent;
+            margin: 12px 0;
+            border-radius: 4px;
         }
-        .page img:hover { border: 1px dashed #ccc; }
 
-        /* Hidden Utility Elements */
-        #img-upload { display: none; }
-        #chart-canvas-container { display: none; }
+        #img-upload, #canvas-holder {
+            display: none;
+        }
 
-        /* Responsive Mobile Layout */
+        /* RESPONSE SCREEN COMPRESSION TUNING */
         @media (max-width: 768px) {
-            .workspace { padding: 10px; }
-            .page { padding: 30px; min-height: 800px; }
-            .tool-group { border-right: none; padding-right: 0; margin-right: 0; flex-wrap: wrap; }
+            .workspace { padding: 8px; }
+            .page { padding: 25px; min-height: auto; }
+            .toolbar { padding: 8px; gap: 4px; }
+            .tool-group { border-right: none; padding-right: 0; margin-right: 0; }
+            .cinematic-text { font-size: 42px; }
         }
     </style>
 </head>
@@ -246,6 +240,166 @@
     </div>
 
     <div id="app-container">
-        
         <div class="header">
-            <span class="app-name">Antify Docs</span>
+            <span>Antify Word Processor</span>
+            <span style="font-size: 11px; opacity: 0.8;">Cloud Sandbox Engine</span>
+        </div>
+
+        <div class="ribbon">
+            <div class="ribbon-tabs">
+                <div class="tab active">Home</div>
+                <div class="tab" onclick="document.getElementById('img-upload').click()">🖼️ Insert Image</div>
+                <div class="tab" style="color: var(--ms-blue);" onclick="generateSystemChart()">📊 Insert Dynamic Chart</div>
+            </div>
+
+            <div class="toolbar">
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="executeAction('undo')" title="Undo">↩️</button>
+                    <button class="tool-btn" onclick="executeAction('redo')" title="Redo">↪️</button>
+                </div>
+
+                <div class="tool-group">
+                    <select id="fontName" onchange="executeAction('fontName', this.value)">
+                        <option value="Arial" selected>Arial</option>
+                        <option value="Calibri">Calibri</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Impact">Impact</option>
+                        <option value="Courier New">Courier New</option>
+                    </select>
+
+                    <select id="fontSize" onchange="executeAction('fontSize', this.value)">
+                        <option value="2">12px (Small)</option>
+                        <option value="3" selected>16px (Normal)</option>
+                        <option value="4">18px (Medium)</option>
+                        <option value="5">24px (Large)</option>
+                        <option value="6">32px (X-Large)</option>
+                        <option value="7">48px (Heading)</option>
+                    </select>
+                </div>
+
+                <div class="tool-group">
+                    <button class="tool-btn" style="font-weight:800;" onclick="executeAction('bold')">B</button>
+                    <button class="tool-btn" style="font-style:italic;" onclick="executeAction('italic')">I</button>
+                    <button class="tool-btn" style="text-decoration:underline;" onclick="executeAction('underline')">U</button>
+                    <button class="tool-btn" onclick="executeAction('strikeThrough')"><s>S</s></button>
+                </div>
+
+                <div class="tool-group">
+                    <div class="color-wrapper">
+                        <span>Font</span>
+                        <input type="color" onchange="executeAction('foreColor', this.value)">
+                    </div>
+                    <div class="color-wrapper">
+                        <span>Highlight</span>
+                        <input type="color" value="#ffff00" onchange="executeAction('hiliteColor', this.value)">
+                    </div>
+                </div>
+
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="executeAction('insertUnorderedList')">• Bullets</button>
+                    <button class="tool-btn" onclick="executeAction('insertOrderedList')">1. Numbers</button>
+                </div>
+
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="executeAction('justifyLeft')">⫷ Left</button>
+                    <button class="tool-btn" onclick="executeAction('justifyCenter')">☰ Center</button>
+                    <button class="tool-btn" onclick="executeAction('justifyRight')">⫸ Right</button>
+                </div>
+            </div>
+        </div>
+
+        <input type="file" id="img-upload" accept="image/*">
+        <div id="canvas-holder">
+            <canvas id="renderChartCanvas" width="600" height="320"></canvas>
+        </div>
+
+        <div class="workspace">
+            <div class="page" id="text-canvas" contenteditable="true" spellcheck="true">
+                <p>Welcome to Antify Docs! Start writing your document here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function executeAction(command, value = null) {
+            document.execCommand(command, false, value);
+            document.getElementById('text-canvas').focus();
+        }
+
+        // Fix: Intro layer dismisses gracefully after 3 seconds without locking the window view
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const intro = document.getElementById('intro-screen');
+                if (intro) {
+                    intro.style.opacity = '0';
+                    intro.style.transform = 'translateY(-100vh)';
+                    setTimeout(() => {
+                        intro.style.display = 'none';
+                        document.getElementById('text-canvas').focus();
+                    }, 600);
+                }
+            }, 3000);
+        });
+
+        // Image Selection Stream Reader
+        document.getElementById('img-upload').addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const fileReader = new FileReader();
+                fileReader.onload = function(event) {
+                    executeAction('insertImage', event.target.result);
+                };
+                fileReader.readAsDataURL(this.files[0]);
+            }
+            this.value = '';
+        });
+
+        // Real Raw Graphical Bar Chart Generation Pipeline
+        function generateSystemChart() {
+            const canvas = document.getElementById('renderChartCanvas');
+            const context = canvas.getContext('2d');
+
+            if (window.activeChartInstance) {
+                window.activeChartInstance.destroy();
+            }
+
+            context.fillStyle = "#ffffff";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            window.activeChartInstance = new Chart(context, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Project Metrics Index',
+                        data: [65, 81, 56, 89, 72, 95],
+                        backgroundColor: 'rgba(24, 90, 189, 0.75)',
+                        borderColor: 'rgba(24, 90, 189, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    animation: false,
+                    plugins: {
+                        title: { display: true, text: 'Live Report Chart Overview', font: { size: 16, weight: 'bold' } }
+                    }
+                }
+            });
+
+            const snapshotUrl = canvas.toDataURL('image/png');
+            executeAction('insertImage', snapshotUrl);
+            executeAction('insertHTML', '<br><p></p>');
+        }
+
+        // Tab hotkey spacer injection hook
+        document.getElementById('text-canvas').addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                executeAction('insertHTML', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+            }
+        });
+    </script>
+</body>
+</html>
