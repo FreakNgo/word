@@ -34,9 +34,60 @@
             color: var(--text-dark);
             height: 100vh;
             overflow: hidden;
+            position: relative;
         }
 
-        /* --- APP CONTAINER SYSTEM --- */
+        /* --- IMMUTABLE INTRO OVERLAY --- */
+        #intro-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #05050a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .cinematic-text {
+            font-size: 72px;
+            font-weight: 800;
+            letter-spacing: 8px;
+            background: linear-gradient(90deg, #ff5252, #ff793f, #ffb142, #33d9b2, #34ace0, #706fd3, #ff5252);
+            background-size: 300% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: liquidRainbow 3s linear infinite;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .skip-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .skip-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes liquidRainbow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        /* --- MAIN APPLICATION FRAMEWORK --- */
         #app-container {
             display: flex;
             flex-direction: column;
@@ -130,7 +181,7 @@
             outline: none;
         }
 
-        /* WORKSPACE VIEWPORT */
+        /* WORKSPACE DISPLAY AREA */
         .workspace {
             flex-grow: 1;
             overflow-y: auto;
@@ -152,3 +203,366 @@
             color: #000000;
             word-wrap: break-word;
         }
+
+        /* --- INTERACTIVE GRAPHS --- */
+        .chart-wrapper-box {
+            width: 100%;
+            max-width: 540px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border: 2px dashed #185abd;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        
+        .chart-wrapper-box:hover {
+            border-color: #ff5252;
+            background-color: #fafafa;
+        }
+        
+        .chart-wrapper-box::before {
+            content: '⚡ Click Graph to Edit Names & %';
+            position: absolute;
+            top: -12px;
+            right: 15px;
+            background: #185abd;
+            color: white;
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        /* --- LIGHTWEIGHT POPUP COMPONENT --- */
+        .custom-modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5);
+            z-index: 200000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-body-box {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-body-box h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: var(--ms-blue);
+        }
+
+        .data-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .data-input-row input {
+            padding: 8px;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .data-input-row input[type="text"] { flex: 2; }
+        .data-input-row input[type="number"] { flex: 1; }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .modal-btn.save { background: var(--ms-blue); color: white; }
+        .modal-btn.cancel { background: #edebe9; color: var(--text-dark); border-color: var(--border-color); }
+    </style>
+</head>
+<body>
+
+    <div id="intro-screen">
+        <div class="cinematic-text">ANTIFY</div>
+        <button type="button" class="skip-btn" onclick="dismissIntroOverlay()">Skip Intro &rarr;</button>
+    </div>
+
+    <div class="custom-modal-backdrop" id="editorModal">
+        <div class="modal-body-box">
+            <h3>📈 Edit Chart Data Details</h3>
+            <div id="inputRowsContainer"></div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeEditorModal()">Cancel</button>
+                <button class="modal-btn save" onclick="saveChartDataChanges()">Update Graph</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container">
+        <div class="header">
+            <span>Antify Word Processor</span>
+            <span style="font-size: 11px; opacity: 0.8;">Cloud Sandbox Engine</span>
+        </div>
+
+        <div class="ribbon">
+            <div class="ribbon-tabs">
+                <div class="tab active">Home</div>
+                
+                <div class="chart-menu-container">
+                    <div class="tab" style="color: var(--ms-blue); font-weight: bold;" onclick="toggleChartDropdown(event)">📊 Insert Chart ▾</div>
+                    <div class="chart-dropdown-options" id="chartDropdownMenu">
+                        <button type="button" onclick="insertDirectChart('bar')">📊 Bar Chart</button>
+                        <button type="button" onclick="insertDirectChart('pie')">🍕 Pie Chart</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="executeAction('undo')">↩️</button>
+                    <button class="tool-btn" onclick="executeAction('redo')">↪️</button>
+                </div>
+
+                <div class="tool-group">
+                    <select id="fontSizeSelection" onchange="changeSelectionFontSize(this.value)">
+                        <option value="12px">12px</option>
+                        <option value="16px" selected>16px</option>
+                        <option value="24px">24px</option>
+                        <option value="32px">32px</option>
+                    </select>
+                </div>
+
+                <div class="tool-group">
+                    <button class="tool-btn" style="font-weight:800;" onclick="executeAction('bold')">B</button>
+                    <button class="tool-btn" style="font-style:italic;" onclick="executeAction('italic')">I</button>
+                    <button class="tool-btn" style="text-decoration:underline;" onclick="executeAction('underline')">U</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="workspace">
+            <div class="page" id="text-canvas" contenteditable="true" spellcheck="true">
+                <p>Welcome to Antify Docs! Start writing your document here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- 1. INTRO SCREEN REMOVAL ARCHITECTURE --- */
+        function dismissIntroOverlay() {
+            const intro = document.getElementById('intro-screen');
+            if (intro) {
+                intro.style.opacity = '0';
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    const canvas = document.getElementById('text-canvas');
+                    if (canvas) canvas.focus();
+                }, 500);
+            }
+        }
+
+        // Fades out the intro screen safely after 2.5 seconds
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(dismissIntroOverlay, 2500);
+        });
+
+        /* --- 2. CORE UTILITIES --- */
+        const chartStorageRegistry = {};
+        let activeTargetChartId = null;
+
+        function executeAction(command, value = null) {
+            document.execCommand(command, false, value);
+            document.getElementById('text-canvas').focus();
+        }
+
+        function changeSelectionFontSize(sizeValue) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                if (range.collapsed) {
+                    document.execCommand('fontSize', false, "3");
+                    const fontElements = document.getElementsByTagName("font");
+                    for (let i = 0; i < fontElements.length; i++) {
+                        if (fontElements[i].size === "3") {
+                            fontElements[i].removeAttribute("size");
+                            fontElements[i].style.fontSize = sizeValue;
+                        }
+                    }
+                } else {
+                    const span = document.createElement("span");
+                    span.style.fontSize = sizeValue;
+                    range.surroundContents(span);
+                }
+            }
+        }
+
+        function toggleChartDropdown(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('chartDropdownMenu');
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        window.addEventListener('click', () => {
+            document.getElementById('chartDropdownMenu').style.display = 'none';
+        });
+
+        /* --- 3. CHART INTEGRATION MOTOR --- */
+        function insertDirectChart(chartType) {
+            // Safety Check: Verifies ChartJS engine has loaded from internet
+            if (typeof Chart === 'undefined') {
+                alert("Charting engine is still loading. Please wait a brief moment!");
+                return;
+            }
+
+            document.getElementById('chartDropdownMenu').style.display = 'none';
+            const editor = document.getElementById('text-canvas');
+            const uniqueId = 'chart-' + Date.now();
+            
+            const defaultLabels = ['Apples', 'Oranges', 'Bananas', 'Grapes'];
+            const defaultValues = [40, 30, 20, 10];
+
+            const wrapperBox = document.createElement('div');
+            wrapperBox.className = 'chart-wrapper-box';
+            wrapperBox.setAttribute('contenteditable', 'false');
+            wrapperBox.id = uniqueId + '-box';
+            
+            wrapperBox.onclick = () => openEditorModal(uniqueId);
+            
+            const canvasElement = document.createElement('canvas');
+            canvasElement.id = uniqueId;
+            canvasElement.style.height = '260px';
+            wrapperBox.appendChild(canvasElement);
+
+            const lineSpacer = document.createElement('p');
+            lineSpacer.innerHTML = '<br>';
+
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0 && editor.contains(selection.getRangeAt(0).startContainer)) {
+                const textRange = selection.getRangeAt(0);
+                textRange.deleteContents();
+                textRange.insertNode(lineSpacer);
+                textRange.insertNode(wrapperBox);
+            } else {
+                editor.appendChild(wrapperBox);
+                editor.appendChild(lineSpacer);
+            }
+
+            setTimeout(() => {
+                const canvasNode = document.getElementById(uniqueId);
+                if (!canvasNode) return;
+                const ctx = canvasNode.getContext('2d');
+                
+                const chartInstance = new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: defaultLabels.map((lbl, i) => generatePercentageLabelString(lbl, defaultValues[i], defaultValues)),
+                        datasets: [{
+                            data: defaultValues,
+                            backgroundColor: ['#185abd', '#36a2eb', '#ff6384', '#4bc0c0'],
+                            borderWidth: 1.5,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: chartType === 'bar' ? 'Bar Analysis Metrics Display' : 'Pie Value Breakdown Distribution',
+                                font: { size: 14, weight: 'bold', family: "'Open Sans', sans-serif" }
+                            },
+                            legend: { position: 'bottom', labels: { boxWidth: 12 } }
+                        }
+                    }
+                });
+
+                chartStorageRegistry[uniqueId] = {
+                    instance: chartInstance,
+                    type: chartType,
+                    labels: defaultLabels,
+                    values: defaultValues
+                };
+            }, 50);
+        }
+
+        function generatePercentageLabelString(label, val, allValues) {
+            const totalSum = allValues.reduce((a, b) => a + b, 0);
+            const percentage = totalSum > 0 ? Math.round((val / totalSum) * 100) : 0;
+            return `${label}: ${val} (${percentage}%)`;
+        }
+
+        /* --- 4. IN-APP MODAL DATA CONTROL PANELS --- */
+        function openEditorModal(chartId) {
+            activeTargetChartId = chartId;
+            const targetData = chartStorageRegistry[chartId];
+            if (!targetData) return;
+
+            const container = document.getElementById('inputRowsContainer');
+            container.innerHTML = ''; 
+
+            targetData.labels.forEach((label, idx) => {
+                const val = targetData.values[idx];
+                const row = document.createElement('div');
+                row.className = 'data-input-row';
+                row.innerHTML = `
+                    <span style="font-size:12px; font-weight:bold; color:#666; width:50px;">Bar ${idx+1}:</span>
+                    <input type="text" value="${label}" id="lbl-${idx}" placeholder="Label Name">
+                    <input type="number" value="${val}" id="val-${idx}" placeholder="Value">
+                `;
+                container.appendChild(row);
+            });
+
+            document.getElementById('editorModal').style.display = 'flex';
+        }
+
+        function closeEditorModal() {
+            document.getElementById('editorModal').style.display = 'none';
+            activeTargetChartId = null;
+        }
+
+        function saveChartDataChanges() {
+            if (!activeTargetChartId) return;
+            const targetData = chartStorageRegistry[activeTargetChartId];
+            if (!targetData) return;
+
+            const updatedLabels = [];
+            const updatedValues = [];
+
+            targetData.labels.forEach((_, idx) => {
+                const labelInp = document.getElementById(`lbl-${idx}`).value.trim();
+                const valueInp = parseFloat(document.getElementById(`val-${idx}`).value);
+
+                updatedLabels.push(labelInp || `Item ${idx + 1}`);
+                updatedValues.push(isNaN(valueInp) ? 0 : valueInp);
+            });
+
+            targetData.labels = updatedLabels;
+            targetData.values = updatedValues;
+            
+            targetData.instance.data.labels = updatedLabels.map((lbl, idx) => 
+                generatePercentageLabelString(lbl, updatedValues[idx], updatedValues)
+            );
+            
+            targetData.instance.
