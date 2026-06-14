@@ -48,7 +48,7 @@
             justify-content: center;
             align-items: center;
             z-index: 999999;
-            animation: absoluteSelfDestruct 0.5s ease 1.5s forwards;
+            animation: absoluteSelfDestruct 0.5s ease 1s forwards;
         }
 
         .cinematic-text {
@@ -283,42 +283,53 @@
             word-wrap: break-word;
         }
 
-        /* --- CHART ENVELOPE BOXES (WITH DRAG HANDLE & MOVEMENT) --- */
+        /* --- CHART CONTAINERS WITH FIXED GRAB CHANNELS --- */
         .chart-wrapper-box {
             width: 100%;
             max-width: 540px;
             margin: 20px auto;
             background: #ffffff;
-            padding: 24px 20px 20px 20px;
+            padding: 10px;
             border: 2px dashed #185abd;
             border-radius: 8px;
             position: relative;
-            cursor: move; /* Shows move handles on hover */
-            transition: border-color 0.2s, background-color 0.2s;
-            user-select: none;
+            transition: border-color 0.2s;
         }
         
         .chart-wrapper-box:hover {
             border-color: #ff5252;
-            background-color: #fafafa;
         }
-        
-        .chart-wrapper-box::before {
-            content: '↕️ Drag to Move | ⚡ Click to Edit';
-            position: absolute;
-            top: -12px;
-            right: 15px;
-            background: #185abd;
-            color: white;
+
+        /* Dedicated movement handle header row */
+        .chart-drag-handle {
+            background-color: #f3f2f1;
+            border-bottom: 1px solid var(--border-color);
+            margin: -10px -10px 10px -10px;
+            padding: 6px 12px;
             font-size: 11px;
-            padding: 2px 10px;
-            border-radius: 10px;
             font-weight: bold;
+            color: #666;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            user-select: none;
+        }
+
+        .chart-drag-handle:hover {
+            background-color: var(--hover-bg);
+            color: var(--ms-blue);
         }
 
         .chart-wrapper-box.dragging {
-            opacity: 0.4;
+            opacity: 0.3;
             border-color: #ffb142;
+        }
+
+        canvas {
+            cursor: pointer;
         }
 
         /* --- LIGHTWEIGHT POPUP MODAL DATA EDITOR --- */
@@ -442,3 +453,40 @@
                     <button class="tool-btn" style="font-weight:800;" title="Bold" onclick="executeAction('bold')">B</button>
                     <button class="tool-btn" style="font-style:italic;" title="Italic" onclick="executeAction('italic')">I</button>
                     <button class="tool-btn" style="text-decoration:underline;" title="Underline" onclick="executeAction('underline')">U</button>
+                    
+                    <div class="highlight-picker-wrapper">
+                        <button class="tool-btn" title="Text Highlight" onclick="toggleHighlightPalette(event)">🖍️</button>
+                        <div class="highlight-palette" id="textHighlightPalette">
+                            <div class="color-swatch" style="background:#ffff00;" onclick="applyHighlightColor('#ffff00')"></div>
+                            <div class="color-swatch" style="background:#00ff00;" onclick="applyHighlightColor('#00ff00')"></div>
+                            <div class="color-swatch" style="background:#00ffff;" onclick="applyHighlightColor('#00ffff')"></div>
+                            <div class="color-swatch" style="background:#ff00ff;" onclick="applyHighlightColor('#ff00ff')"></div>
+                            <div class="color-swatch" style="background:#ffc0cb;" onclick="applyHighlightColor('#ffc0cb')"></div>
+                            <div class="color-swatch" style="background:#ffa500;" onclick="applyHighlightColor('#ffa500')"></div>
+                            <div class="color-swatch" style="background:transparent; border:1px solid red; position:relative;" title="Clear Highlight" onclick="applyHighlightColor('transparent')"><span style="color:red; font-size:10px; position:absolute; top:-2px; left:5px;">x</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-group" style="border-right: none;">
+                    <button class="tool-btn" title="Align Left" onclick="executeAction('justifyLeft')">Left</button>
+                    <button class="tool-btn" title="Align Center" onclick="executeAction('justifyCenter')">Center</button>
+                    <button class="tool-btn" title="Align Right" onclick="executeAction('justifyRight')">Right</button>
+                    <button class="tool-btn" title="Justify Content" onclick="executeAction('justifyFull')">Justify</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="workspace">
+            <div class="page" id="text-canvas" contenteditable="true" spellcheck="true">
+                <p>Welcome to Antify Docs! Start writing your document here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chartStorageRegistry = {};
+        let activeTargetChartId = null;
+
+        function executeAction(command, value = null) {
+            document.
