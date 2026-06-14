@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antify Docs - Word Processor</title>
+    <title>Antify Docs - Premium Word Processor</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,13 +37,10 @@
             position: relative;
         }
 
-        /* --- FIXED INTRO: Sits completely on top, then slides out safely --- */
+        /* --- INTRO SCREEN --- */
         #intro-screen {
             position: fixed;
-            top: 0; 
-            left: 0; 
-            width: 100vw; 
-            height: 100vh;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: #05050a;
             display: flex;
             justify-content: center;
@@ -80,7 +77,7 @@
             100% { opacity: 1; transform: scale(1); }
         }
 
-        /* --- MAIN WORD APPLICATION INTERFACE --- */
+        /* --- MAIN APPLICATION INTERFACE --- */
         #app-container {
             display: flex;
             flex-direction: column;
@@ -189,7 +186,44 @@
             background: transparent;
         }
 
-        /* WORKSPACE CANVAS SHEET */
+        /* CHART SELECTION DROPDOWN MENU */
+        .chart-menu-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .chart-dropdown-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            z-index: 1000;
+        }
+
+        .chart-dropdown-options button {
+            color: var(--text-dark);
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .chart-dropdown-options button:hover {
+            background-color: var(--hover-bg);
+        }
+
+        /* WORKSPACE SHEET */
         .workspace {
             flex-grow: 1;
             overflow-y: auto;
@@ -212,18 +246,28 @@
             word-wrap: break-word;
         }
 
+        /* Target inserted charts or images specifically */
         .page img {
             max-width: 100%;
             height: auto;
-            margin: 12px 0;
+            margin: 15px 0;
             border-radius: 4px;
+            display: block;
         }
 
-        #img-upload, #canvas-holder {
+        /* HIDDEN WORKSPACE ENGINE FOR RENDER STACKS */
+        #img-upload {
             display: none;
         }
+        
+        #canvas-holder {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            visibility: hidden;
+        }
 
-        /* RESPONSE SCREEN COMPRESSION TUNING */
+        /* RESPONSIVE SCALING PRESETS */
         @media (max-width: 768px) {
             .workspace { padding: 8px; }
             .page { padding: 25px; min-height: auto; }
@@ -249,7 +293,14 @@
             <div class="ribbon-tabs">
                 <div class="tab active">Home</div>
                 <div class="tab" onclick="document.getElementById('img-upload').click()">🖼️ Insert Image</div>
-                <div class="tab" style="color: var(--ms-blue);" onclick="generateSystemChart()">📊 Insert Dynamic Chart</div>
+                
+                <div class="chart-menu-container">
+                    <div class="tab" style="color: var(--ms-blue); font-weight: bold;" onclick="toggleChartDropdown(event)">📊 Insert Chart ▾</div>
+                    <div class="chart-dropdown-options" id="chartDropdownMenu">
+                        <button onclick="generateSystemChart('bar')">📊 Bar Chart</button>
+                        <button onclick="generateSystemChart('pie')">🍕 Pie Chart</button>
+                    </div>
+                </div>
             </div>
 
             <div class="toolbar">
@@ -312,7 +363,7 @@
 
         <input type="file" id="img-upload" accept="image/*">
         <div id="canvas-holder">
-            <canvas id="renderChartCanvas" width="600" height="320"></canvas>
+            <canvas id="renderChartCanvas" width="600" height="350"></canvas>
         </div>
 
         <div class="workspace">
@@ -328,7 +379,19 @@
             document.getElementById('text-canvas').focus();
         }
 
-        // Fix: Intro layer dismisses gracefully after 3 seconds without locking the window view
+        // Toggle Chart Dropdown Options Window Menu Setup
+        function toggleChartDropdown(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('chartDropdownMenu');
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', () => {
+            document.getElementById('chartDropdownMenu').style.display = 'none';
+        });
+
+        // Intro screen layer dismisses cleanly
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const intro = document.getElementById('intro-screen');
@@ -343,7 +406,7 @@
             }, 3000);
         });
 
-        // Image Selection Stream Reader
+        // Image Selection Stream Reader Configuration
         document.getElementById('img-upload').addEventListener('change', function(e) {
             if (this.files && this.files[0]) {
                 const fileReader = new FileReader();
@@ -355,8 +418,11 @@
             this.value = '';
         });
 
-        // Real Raw Graphical Bar Chart Generation Pipeline
-        function generateSystemChart() {
+        // Real Raw Graphical Dynamic Multi-Chart Engine (Supports Bar & Pie Routing)
+        function generateSystemChart(chartType) {
+            // Close selection window menu
+            document.getElementById('chartDropdownMenu').style.display = 'none';
+
             const canvas = document.getElementById('renderChartCanvas');
             const context = canvas.getContext('2d');
 
@@ -364,36 +430,65 @@
                 window.activeChartInstance.destroy();
             }
 
+            // Flush out background completely to clean solid white canvas profile container profiles
+            context.clearRect(0, 0, canvas.width, canvas.height);
             context.fillStyle = "#ffffff";
             context.fillRect(0, 0, canvas.width, canvas.height);
 
+            // Chart Configuration Matrix Mapping Data Sheets
+            const chartData = {
+                labels: ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'],
+                datasets: [{
+                    label: 'Market Sales Distribution (%)',
+                    data: [35, 25, 15, 15, 10],
+                    backgroundColor: [
+                        'rgba(24, 90, 189, 0.85)',
+                        'rgba(54, 162, 235, 0.85)',
+                        'rgba(255, 99, 132, 0.85)',
+                        'rgba(75, 192, 192, 0.85)',
+                        'rgba(255, 206, 86, 0.85)'
+                    ],
+                    borderColor: [
+                        'rgba(24, 90, 189, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            };
+
+            // Build instance targeting selected chart mapping path
             window.activeChartInstance = new Chart(context, {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Project Metrics Index',
-                        data: [65, 81, 56, 89, 72, 95],
-                        backgroundColor: 'rgba(24, 90, 189, 0.75)',
-                        borderColor: 'rgba(24, 90, 189, 1)',
-                        borderWidth: 2
-                    }]
-                },
+                type: chartType,
+                data: chartData,
                 options: {
                     responsive: false,
                     animation: false,
                     plugins: {
-                        title: { display: true, text: 'Live Report Chart Overview', font: { size: 16, weight: 'bold' } }
+                        title: { 
+                            display: true, 
+                            text: chartType === 'bar' ? 'Sales Revenue Report (Bar Overview)' : 'Sales Share Report (Pie Distribution)', 
+                            font: { size: 16, weight: 'bold' } 
+                        },
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
                     }
                 }
             });
 
+            // Convert to snapshot data image schema string structure and inject cleanly inside document layout stack
             const snapshotUrl = canvas.toDataURL('image/png');
             executeAction('insertImage', snapshotUrl);
+            
+            // Add spacing break blocks behind chart layer securely
             executeAction('insertHTML', '<br><p></p>');
         }
 
-        // Tab hotkey spacer injection hook
+        // Tab hook spacing injection mapper
         document.getElementById('text-canvas').addEventListener('keydown', function(e) {
             if (e.key === 'Tab') {
                 e.preventDefault();
