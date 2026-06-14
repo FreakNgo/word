@@ -37,16 +37,17 @@
             position: relative;
         }
 
-        /* --- INTRO SCREEN --- */
+        /* --- BULLETPROOF OVERLAY INTRO ENGINE --- */
         #intro-screen {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: #05050a;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 99999;
-            transition: transform 0.6s cubic-bezier(0.1, 1, 0.1, 1), opacity 0.4s ease;
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
         .cinematic-text {
@@ -61,20 +62,30 @@
             color: transparent;
             -webkit-background-clip: text;
             background-clip: text;
-            animation: liquidRainbow 3s linear infinite, scaleIntro 3s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+            animation: liquidRainbow 3s linear infinite;
             text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .skip-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .skip-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
         }
 
         @keyframes liquidRainbow {
             0% { background-position: 0% 50%; }
             100% { background-position: 300% 50%; }
-        }
-
-        @keyframes scaleIntro {
-            0% { transform: scale(0.85); opacity: 0; filter: blur(12px); }
-            20% { opacity: 1; filter: blur(0px); }
-            80% { opacity: 1; transform: scale(1.03); }
-            100% { opacity: 1; transform: scale(1); }
         }
 
         /* --- MAIN APPLICATION INTERFACE --- */
@@ -284,6 +295,7 @@
 
     <div id="intro-screen">
         <div class="cinematic-text">ANTIFY</div>
+        <button type="button" class="skip-btn" onclick="dismissIntroOverlay()">Skip Intro &rarr;</button>
     </div>
 
     <div id="app-container">
@@ -401,4 +413,152 @@
             document.getElementById('text-canvas').focus();
         }
 
-        function toggleChartDropdown(event)
+        function toggleChartDropdown(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('chartDropdownMenu');
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        window.addEventListener('click', () => {
+            document.getElementById('chartDropdownMenu').style.display = 'none';
+        });
+
+        // Safe Intro Cleaner Hook Architecture
+        function dismissIntroOverlay() {
+            const intro = document.getElementById('intro-screen');
+            if (intro) {
+                intro.style.opacity = '0';
+                intro.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    document.getElementById('text-canvas').focus();
+                }, 500);
+            }
+        }
+
+        // Auto-loads out of intro instantly after window triggers loaded parameters
+        window.addEventListener('load', () => {
+            setTimeout(dismissIntroOverlay, 2000); 
+        });
+
+        document.getElementById('img-upload').addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const fileReader = new FileReader();
+                fileReader.onload = function(event) {
+                    executeAction('insertImage', event.target.result);
+                };
+                fileReader.readAsDataURL(this.files[0]);
+            }
+            this.value = '';
+        });
+
+        function promptChartData(chartType) {
+            document.getElementById('chartDropdownMenu').style.display = 'none';
+            
+            const userInput = prompt(
+                "Enter 5 data values separated by commas:\n(e.g., 40, 20, 15, 15, 10)", 
+                "35, 25, 20, 12, 8"
+            );
+            
+            if (userInput === null) return;
+
+            const parsedData = userInput.split(',').map(num => parseFloat(num.trim()));
+            
+            if (parsedData.length < 2 || parsedData.some(isNaN)) {
+                alert("Invalid input! Please type numbers separated by commas.");
+                return;
+            }
+
+            insertDirectChart(chartType, parsedData);
+        }
+
+        function insertDirectChart(chartType, userMetricsArray) {
+            const editor = document.getElementById('text-canvas');
+            const uniqueId = 'chart-' + Date.now();
+            
+            const wrapperBox = document.createElement('div');
+            wrapperBox.className = 'chart-wrapper-box';
+            wrapperBox.setAttribute('contenteditable', 'false');
+            wrapperBox.id = uniqueId + '-box';
+            
+            const canvasElement = document.createElement('canvas');
+            canvasElement.id = uniqueId;
+            canvasElement.style.width = '100%';
+            canvasElement.style.height = '280px';
+            
+            wrapperBox.appendChild(canvasElement);
+
+            const lineSpacer = document.createElement('p');
+            lineSpacer.innerHTML = '<br>';
+
+            const visualLabels = [];
+            for(let i = 1; i <= userMetricsArray.length; i++) {
+                visualLabels.push(`Item ${i}`);
+            }
+
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0 && editor.contains(selection.getRangeAt(0).startContainer)) {
+                const textRange = selection.getRangeAt(0);
+                textRange.deleteContents();
+                textRange.insertNode(lineSpacer);
+                textRange.insertNode(wrapperBox);
+            } else {
+                editor.appendChild(wrapperBox);
+                editor.appendChild(lineSpacer);
+            }
+
+            setTimeout(() => {
+                const targets = document.getElementById(uniqueId);
+                if (!targets) return;
+
+                const context = targets.getContext('2d');
+                
+                new Chart(context, {
+                    type: chartType,
+                    data: {
+                        labels: visualLabels,
+                        datasets: [{
+                            label: 'Metrics Volume Metric Value',
+                            data: userMetricsArray,
+                            backgroundColor: [
+                                '#185abd',
+                                '#36a2eb',
+                                '#ff6384',
+                                '#4bc0c0',
+                                '#ffce56',
+                                '#9966ff',
+                                '#ff9f40'
+                            ],
+                            borderWidth: 1.5,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: chartType === 'bar' ? 'Custom Metrics Level (Bar Chart Analysis)' : 'Custom Metrics Distribution (Pie Chart Share)',
+                                font: { size: 14, weight: 'bold', family: "'Open Sans', sans-serif" },
+                                color: '#323130'
+                            },
+                            legend: {
+                                position: 'bottom',
+                                labels: { boxWidth: 12, font: { size: 11 } }
+                            }
+                        }
+                    }
+                });
+            }, 40);
+        }
+
+        document.getElementById('text-canvas').addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                executeAction('insertHTML', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+            }
+        });
+    </script>
+</body>
+</html>
