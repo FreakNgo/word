@@ -186,7 +186,7 @@
             background: transparent;
         }
 
-        /* CHART SELECTION DROPDOWN MENU */
+        /* CHART DROPDOWN OPTIONS */
         .chart-menu-container {
             position: relative;
             display: inline-block;
@@ -246,25 +246,26 @@
             word-wrap: break-word;
         }
 
-        /* Target inserted charts or images specifically */
-        .page img {
+        /* Target inserted images or chart boxes */
+        .page img, .chart-wrapper-box {
             max-width: 100%;
             height: auto;
-            margin: 15px 0;
+            margin: 20px auto;
             border-radius: 4px;
             display: block;
         }
 
-        /* HIDDEN WORKSPACE ENGINE FOR RENDER STACKS */
+        .chart-wrapper-box {
+            width: 100%;
+            max-width: 550px;
+            background: #ffffff;
+            padding: 15px;
+            border: 1px solid #e1dfdd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
         #img-upload {
             display: none;
-        }
-        
-        #canvas-holder {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
-            visibility: hidden;
         }
 
         /* RESPONSIVE SCALING PRESETS */
@@ -297,8 +298,8 @@
                 <div class="chart-menu-container">
                     <div class="tab" style="color: var(--ms-blue); font-weight: bold;" onclick="toggleChartDropdown(event)">📊 Insert Chart ▾</div>
                     <div class="chart-dropdown-options" id="chartDropdownMenu">
-                        <button onclick="generateSystemChart('bar')">📊 Bar Chart</button>
-                        <button onclick="generateSystemChart('pie')">🍕 Pie Chart</button>
+                        <button onclick="insertDirectChart('bar')">📊 Bar Chart</button>
+                        <button onclick="insertDirectChart('pie')">🍕 Pie Chart</button>
                     </div>
                 </div>
             </div>
@@ -320,13 +321,13 @@
                         <option value="Courier New">Courier New</option>
                     </select>
 
-                    <select id="fontSize" onchange="executeAction('fontSize', this.value)">
-                        <option value="2">12px (Small)</option>
-                        <option value="3" selected>16px (Normal)</option>
-                        <option value="4">18px (Medium)</option>
-                        <option value="5">24px (Large)</option>
-                        <option value="6">32px (X-Large)</option>
-                        <option value="7">48px (Heading)</option>
+                    <select id="fontSizeSelection" onchange="changeSelectionFontSize(this.value)">
+                        <option value="12px">12px (Small)</option>
+                        <option value="16px" selected>16px (Normal)</option>
+                        <option value="20px">20px (Medium)</option>
+                        <option value="24px">24px (Large)</option>
+                        <option value="32px">32px (X-Large)</option>
+                        <option value="48px">48px (Heading)</option>
                     </select>
                 </div>
 
@@ -362,9 +363,6 @@
         </div>
 
         <input type="file" id="img-upload" accept="image/*">
-        <div id="canvas-holder">
-            <canvas id="renderChartCanvas" width="600" height="350"></canvas>
-        </div>
 
         <div class="workspace">
             <div class="page" id="text-canvas" contenteditable="true" spellcheck="true">
@@ -379,19 +377,43 @@
             document.getElementById('text-canvas').focus();
         }
 
-        // Toggle Chart Dropdown Options Window Menu Setup
+        // Fixed: Modern inline-css targeting mechanism for precise sizing adjustment updates
+        function changeSelectionFontSize(sizeValue) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                
+                // If user didn't highlight text, apply sizing to base editor stylesheet layer
+                if (range.collapsed) {
+                    document.execCommand('fontSize', false, "3");
+                    const fontElements = document.getElementsByTagName("font");
+                    for (let i = 0; i < fontElements.length; i++) {
+                        if (fontElements[i].size === "3") {
+                            fontElements[i].removeAttribute("size");
+                            fontElements[i].style.fontSize = sizeValue;
+                        }
+                    }
+                } else {
+                    const span = document.createElement("span");
+                    span.style.fontSize = sizeValue;
+                    range.surroundContents(span);
+                }
+            }
+            document.getElementById('text-canvas').focus();
+        }
+
+        // Toggle dropdown window display profile states
         function toggleChartDropdown(event) {
             event.stopPropagation();
             const menu = document.getElementById('chartDropdownMenu');
             menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
         }
 
-        // Close dropdown when clicking outside
         window.addEventListener('click', () => {
             document.getElementById('chartDropdownMenu').style.display = 'none';
         });
 
-        // Intro screen layer dismisses cleanly
+        // Intro layer dismisses gracefully
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const intro = document.getElementById('intro-screen');
@@ -406,7 +428,7 @@
             }, 3000);
         });
 
-        // Image Selection Stream Reader Configuration
+        // Image Stream Reader Setup
         document.getElementById('img-upload').addEventListener('change', function(e) {
             if (this.files && this.files[0]) {
                 const fileReader = new FileReader();
@@ -418,77 +440,70 @@
             this.value = '';
         });
 
-        // Real Raw Graphical Dynamic Multi-Chart Engine (Supports Bar & Pie Routing)
-        function generateSystemChart(chartType) {
-            // Close selection window menu
+        // Fixed Chart Engine: Drops container and attaches an active canvas into document stream
+        function insertDirectChart(chartType) {
             document.getElementById('chartDropdownMenu').style.display = 'none';
+            
+            const uniqueId = 'chart-' + Date.now();
+            
+            // Build an inline workspace wrapper structure that travels inside text area context safely
+            const wrapperHtml = `
+                <div class="chart-wrapper-box" contenteditable="false" id="${uniqueId}-wrap">
+                    <canvas id="${uniqueId}" width="500" height="300"></canvas>
+                </div>
+                <p contenteditable="true"><br></p>
+            `;
+            
+            executeAction('insertHTML', wrapperHtml);
 
-            const canvas = document.getElementById('renderChartCanvas');
-            const context = canvas.getContext('2d');
-
-            if (window.activeChartInstance) {
-                window.activeChartInstance.destroy();
-            }
-
-            // Flush out background completely to clean solid white canvas profile container profiles
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.fillStyle = "#ffffff";
-            context.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Chart Configuration Matrix Mapping Data Sheets
-            const chartData = {
-                labels: ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'],
-                datasets: [{
-                    label: 'Market Sales Distribution (%)',
-                    data: [35, 25, 15, 15, 10],
-                    backgroundColor: [
-                        'rgba(24, 90, 189, 0.85)',
-                        'rgba(54, 162, 235, 0.85)',
-                        'rgba(255, 99, 132, 0.85)',
-                        'rgba(75, 192, 192, 0.85)',
-                        'rgba(255, 206, 86, 0.85)'
-                    ],
-                    borderColor: [
-                        'rgba(24, 90, 189, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255, 206, 86, 1)'
-                    ],
-                    borderWidth: 2
-                }]
-            };
-
-            // Build instance targeting selected chart mapping path
-            window.activeChartInstance = new Chart(context, {
-                type: chartType,
-                data: chartData,
-                options: {
-                    responsive: false,
-                    animation: false,
-                    plugins: {
-                        title: { 
-                            display: true, 
-                            text: chartType === 'bar' ? 'Sales Revenue Report (Bar Overview)' : 'Sales Share Report (Pie Distribution)', 
-                            font: { size: 16, weight: 'bold' } 
-                        },
-                        legend: {
-                            display: true,
-                            position: 'bottom'
+            // Give browser a microsecond frame delay to mount the canvas element before executing Chart configuration mapping loops
+            setTimeout(() => {
+                const canvasNode = document.getElementById(uniqueId);
+                if (!canvasNode) return;
+                
+                const ctx = canvasNode.getContext('2d');
+                
+                new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: ['North', 'East', 'South', 'West', 'Central'],
+                        datasets: [{
+                            label: 'Market Sales Distribution (%)',
+                            data: [30, 25, 20, 15, 10],
+                            backgroundColor: [
+                                'rgba(24, 90, 189, 0.8)',
+                                'rgba(54, 162, 235, 0.8)',
+                                'rgba(255, 99, 132, 0.8)',
+                                'rgba(75, 192, 192, 0.8)',
+                                'rgba(255, 206, 86, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgba(24, 90, 189, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 206, 86, 1)'
+                            ],
+                            borderWidth: 1.5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: chartType === 'bar' ? 'Regional Sales Performance (Bar Metrics)' : 'Regional Sales Distribution (Pie Analysis)',
+                                font: { size: 14, weight: 'bold', family: "'Open Sans', sans-serif" }
+                            },
+                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
                         }
                     }
-                }
-            });
-
-            // Convert to snapshot data image schema string structure and inject cleanly inside document layout stack
-            const snapshotUrl = canvas.toDataURL('image/png');
-            executeAction('insertImage', snapshotUrl);
-            
-            // Add spacing break blocks behind chart layer securely
-            executeAction('insertHTML', '<br><p></p>');
+                });
+            }, 50);
         }
 
-        // Tab hook spacing injection mapper
+        // Tab hotkey spacer mapper hook
         document.getElementById('text-canvas').addEventListener('keydown', function(e) {
             if (e.key === 'Tab') {
                 e.preventDefault();
