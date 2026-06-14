@@ -33,6 +33,7 @@
             background-color: var(--page-bg);
             color: var(--text-dark);
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
             position: relative;
         }
@@ -47,10 +48,7 @@
             justify-content: center;
             align-items: center;
             z-index: 999999;
-            
-            /* CSS Core Protection: Automatically forces screen fade out and drop-away after 2 seconds */
             animation: absoluteSelfDestruct 0.5s ease 2s forwards;
-            pointer-events: none; /* Prevents it from blocking clicks after fading */
         }
 
         .cinematic-text {
@@ -84,19 +82,21 @@
             100% { background-position: 300% 50%; }
         }
 
-        /* Pure CSS timer that makes the screen disappear no matter what Javascript does */
         @keyframes absoluteSelfDestruct {
-            0% { opacity: 1; visibility: visible; }
-            99% { opacity: 0; visibility: visible; }
-            100% { opacity: 0; visibility: hidden; display: none !important; }
+            0% { opacity: 1; pointer-events: auto; visibility: visible; }
+            99% { opacity: 0; pointer-events: auto; visibility: visible; }
+            100% { opacity: 0; pointer-events: none; visibility: hidden; display: none !important; }
         }
 
-        /* --- MAIN APPLICATION FRAMEWORK --- */
+        /* --- MAIN APPLICATION FRAMEWORK (FIXED HEIGHT COLLAPSE) --- */
         #app-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
             width: 100vw;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
         .header {
@@ -108,11 +108,13 @@
             align-items: center;
             justify-content: space-between;
             font-weight: 600;
+            flex-shrink: 0;
         }
 
         .ribbon {
             background-color: var(--toolbar-bg);
             border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
         }
 
         .ribbon-tabs {
@@ -120,6 +122,7 @@
             background: #faf9f8;
             padding-left: 10px;
             border-bottom: 1px solid var(--border-color);
+            align-items: center;
         }
 
         .tab {
@@ -135,6 +138,42 @@
         .tab.active {
             border-bottom: 3px solid var(--ms-blue);
             color: var(--ms-blue);
+        }
+
+        /* CHART MENU DROPDOWN SYSTEM CSS */
+        .chart-menu-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .chart-dropdown-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #ffffff;
+            min-width: 150px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
+            z-index: 50000;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 4px 0;
+        }
+
+        .chart-dropdown-options button {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 10px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+
+        .chart-dropdown-options button:hover {
+            background-color: var(--hover-bg);
         }
 
         .toolbar {
@@ -185,13 +224,14 @@
             outline: none;
         }
 
-        /* WORKSPACE DISPLAY AREA */
+        /* FIXED WORKSPACE FILL VIEWPORT ARCHITECTURE */
         .workspace {
-            flex-grow: 1;
+            flex: 1 1 auto;
             overflow-y: auto;
             padding: 40px 20px;
             display: flex;
             justify-content: center;
+            background-color: var(--page-bg);
         }
 
         .page {
@@ -199,6 +239,7 @@
             width: 100%;
             max-width: 812px;
             min-height: 1048px;
+            height: max-content;
             padding: 90px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
             outline: none;
@@ -382,4 +423,177 @@
         }
 
         function changeSelectionFontSize(sizeValue) {
-            const selection =
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                if (range.collapsed) {
+                    document.execCommand('fontSize', false, "3");
+                    const fontElements = document.getElementsByTagName("font");
+                    for (let i = 0; i < fontElements.length; i++) {
+                        if (fontElements[i].size === "3") {
+                            fontElements[i].removeAttribute("size");
+                            fontElements[i].style.fontSize = sizeValue;
+                        }
+                    }
+                } else {
+                    const span = document.createElement("span");
+                    span.style.fontSize = sizeValue;
+                    range.surroundContents(span);
+                }
+            }
+        }
+
+        function toggleChartDropdown(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('chartDropdownMenu');
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        window.addEventListener('click', () => {
+            document.getElementById('chartDropdownMenu').style.display = 'none';
+        });
+
+        /* --- CHART INTEGRATION ENGINE --- */
+        function insertDirectChart(chartType) {
+            if (typeof Chart === 'undefined') {
+                alert("Charting engine library is still loading into your page context. Give it 2 seconds!");
+                return;
+            }
+
+            document.getElementById('chartDropdownMenu').style.display = 'none';
+            const editor = document.getElementById('text-canvas');
+            const uniqueId = 'chart-' + Date.now();
+            
+            const defaultLabels = ['Apples', 'Oranges', 'Bananas', 'Grapes'];
+            const defaultValues = [40, 30, 20, 10];
+
+            const wrapperBox = document.createElement('div');
+            wrapperBox.className = 'chart-wrapper-box';
+            wrapperBox.setAttribute('contenteditable', 'false');
+            wrapperBox.id = uniqueId + '-box';
+            
+            wrapperBox.onclick = () => openEditorModal(uniqueId);
+            
+            const canvasElement = document.createElement('canvas');
+            canvasElement.id = uniqueId;
+            canvasElement.style.height = '260px';
+            wrapperBox.appendChild(canvasElement);
+
+            const lineSpacer = document.createElement('p');
+            lineSpacer.innerHTML = '<br>';
+
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0 && editor.contains(selection.getRangeAt(0).startContainer)) {
+                const textRange = selection.getRangeAt(0);
+                textRange.deleteContents();
+                textRange.insertNode(lineSpacer);
+                textRange.insertNode(wrapperBox);
+            } else {
+                editor.appendChild(wrapperBox);
+                editor.appendChild(lineSpacer);
+            }
+
+            setTimeout(() => {
+                const canvasNode = document.getElementById(uniqueId);
+                if (!canvasNode) return;
+                const ctx = canvasNode.getContext('2d');
+                
+                const chartInstance = new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: defaultLabels.map((lbl, i) => generatePercentageLabelString(lbl, defaultValues[i], defaultValues)),
+                        datasets: [{
+                            data: defaultValues,
+                            backgroundColor: ['#185abd', '#36a2eb', '#ff6384', '#4bc0c0'],
+                            borderWidth: 1.5,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: chartType === 'bar' ? 'Bar Analysis Metrics Display' : 'Pie Value Breakdown Distribution',
+                                font: { size: 14, weight: 'bold', family: "'Open Sans', sans-serif" }
+                            },
+                            legend: { position: 'bottom', labels: { boxWidth: 12 } }
+                        }
+                    }
+                });
+
+                chartStorageRegistry[uniqueId] = {
+                    instance: chartInstance,
+                    type: chartType,
+                    labels: defaultLabels,
+                    values: defaultValues
+                };
+            }, 50);
+        }
+
+        function generatePercentageLabelString(label, val, allValues) {
+            const totalSum = allValues.reduce((a, b) => a + b, 0);
+            const percentage = totalSum > 0 ? Math.round((val / totalSum) * 100) : 0;
+            return `${label}: ${val} (${percentage}%)`;
+        }
+
+        /* --- DATA EDITOR CONTROLS --- */
+        function openEditorModal(chartId) {
+            activeTargetChartId = chartId;
+            const targetData = chartStorageRegistry[chartId];
+            if (!targetData) return;
+
+            const container = document.getElementById('inputRowsContainer');
+            container.innerHTML = ''; 
+
+            targetData.labels.forEach((label, idx) => {
+                const val = targetData.values[idx];
+                const row = document.createElement('div');
+                row.className = 'data-input-row';
+                row.innerHTML = `
+                    <span style="font-size:12px; font-weight:bold; color:#666; width:50px;">Bar ${idx+1}:</span>
+                    <input type="text" value="${label}" id="lbl-${idx}" placeholder="Label Name">
+                    <input type="number" value="${val}" id="val-${idx}" placeholder="Value">
+                `;
+                container.appendChild(row);
+            });
+
+            document.getElementById('editorModal').style.display = 'flex';
+        }
+
+        function closeEditorModal() {
+            document.getElementById('editorModal').style.display = 'none';
+            activeTargetChartId = null;
+        }
+
+        function saveChartDataChanges() {
+            if (!activeTargetChartId) return;
+            const targetData = chartStorageRegistry[activeTargetChartId];
+            if (!targetData) return;
+
+            const updatedLabels = [];
+            const updatedValues = [];
+
+            targetData.labels.forEach((_, idx) => {
+                const labelInp = document.getElementById(`lbl-${idx}`).value.trim();
+                const valueInp = parseFloat(document.getElementById(`val-${idx}`).value);
+
+                updatedLabels.push(labelInp || `Item ${idx + 1}`);
+                updatedValues.push(isNaN(valueInp) ? 0 : valueInp);
+            });
+
+            targetData.labels = updatedLabels;
+            targetData.values = updatedValues;
+            
+            targetData.instance.data.labels = updatedLabels.map((lbl, idx) => 
+                generatePercentageLabelString(lbl, updatedValues[idx], updatedValues)
+            );
+            
+            targetData.instance.data.datasets[0].data = updatedValues;
+            targetData.instance.update();
+            closeEditorModal();
+        }
+    </script>
+</body>
+</html>
