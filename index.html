@@ -38,7 +38,7 @@
             position: relative;
         }
 
-        /* --- IMMUTABLE CSS SELF-DESTRUCTING INTRO OVERLAY --- */
+        /* --- SELF-DESTRUCTING INTRO OVERLAY --- */
         #intro-screen {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -48,7 +48,7 @@
             justify-content: center;
             align-items: center;
             z-index: 999999;
-            animation: absoluteSelfDestruct 0.5s ease 2s forwards;
+            animation: absoluteSelfDestruct 0.5s ease 1.5s forwards;
         }
 
         .cinematic-text {
@@ -88,7 +88,7 @@
             100% { opacity: 0; pointer-events: none; visibility: hidden; display: none !important; }
         }
 
-        /* --- MAIN APPLICATION FRAMEWORK (FIXED HEIGHT COLLAPSE) --- */
+        /* --- MAIN APPLICATION CONTENT LAYOUT --- */
         #app-container {
             display: flex;
             flex-direction: column;
@@ -140,7 +140,6 @@
             color: var(--ms-blue);
         }
 
-        /* CHART MENU DROPDOWN SYSTEM CSS */
         .chart-menu-container {
             position: relative;
             display: inline-block;
@@ -197,7 +196,7 @@
         .tool-btn {
             background: transparent;
             border: 1px solid transparent;
-            padding: 6px 12px;
+            padding: 6px 10px;
             border-radius: 4px;
             cursor: pointer;
             color: var(--text-dark);
@@ -205,12 +204,48 @@
             font-weight: 600;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 4px;
+            min-width: 32px;
+            height: 32px;
         }
 
         .tool-btn:hover {
             background-color: var(--hover-bg);
             border: 1px solid #c8c6c4;
+        }
+
+        /* Highlight palette wrapper style */
+        .highlight-picker-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .highlight-palette {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 6px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            z-index: 10000;
+        }
+
+        .color-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 2px;
+            cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
         }
 
         select {
@@ -224,7 +259,7 @@
             outline: none;
         }
 
-        /* FIXED WORKSPACE FILL VIEWPORT ARCHITECTURE */
+        /* VIEWPORT CORE DESKTOP VIEW */
         .workspace {
             flex: 1 1 auto;
             overflow-y: auto;
@@ -249,7 +284,7 @@
             word-wrap: break-word;
         }
 
-        /* --- INTERACTIVE GRAPHS --- */
+        /* --- CHART ENVELOPE BOXES --- */
         .chart-wrapper-box {
             width: 100%;
             max-width: 540px;
@@ -281,7 +316,7 @@
             font-weight: bold;
         }
 
-        /* --- LIGHTWEIGHT POPUP EDIT MODAL --- */
+        /* --- LIGHTWEIGHT POPUP MODAL DATA EDITOR --- */
         .custom-modal-backdrop {
             display: none;
             position: fixed;
@@ -385,8 +420,8 @@
 
             <div class="toolbar">
                 <div class="tool-group">
-                    <button class="tool-btn" onclick="executeAction('undo')">↩️</button>
-                    <button class="tool-btn" onclick="executeAction('redo')">↪️</button>
+                    <button class="tool-btn" title="Undo" onclick="executeAction('undo')">↩️</button>
+                    <button class="tool-btn" title="Redo" onclick="executeAction('redo')">↪️</button>
                 </div>
 
                 <div class="tool-group">
@@ -399,9 +434,29 @@
                 </div>
 
                 <div class="tool-group">
-                    <button class="tool-btn" style="font-weight:800;" onclick="executeAction('bold')">B</button>
-                    <button class="tool-btn" style="font-style:italic;" onclick="executeAction('italic')">I</button>
-                    <button class="tool-btn" style="text-decoration:underline;" onclick="executeAction('underline')">U</button>
+                    <button class="tool-btn" style="font-weight:800;" title="Bold" onclick="executeAction('bold')">B</button>
+                    <button class="tool-btn" style="font-style:italic;" title="Italic" onclick="executeAction('italic')">I</button>
+                    <button class="tool-btn" style="text-decoration:underline;" title="Underline" onclick="executeAction('underline')">U</button>
+                    
+                    <div class="highlight-picker-wrapper">
+                        <button class="tool-btn" title="Text Highlight" onclick="toggleHighlightPalette(event)">🖍️</button>
+                        <div class="highlight-palette" id="textHighlightPalette">
+                            <div class="color-swatch" style="background:#ffff00;" onclick="applyHighlightColor('#ffff00')"></div>
+                            <div class="color-swatch" style="background:#00ff00;" onclick="applyHighlightColor('#00ff00')"></div>
+                            <div class="color-swatch" style="background:#00ffff;" onclick="applyHighlightColor('#00ffff')"></div>
+                            <div class="color-swatch" style="background:#ff00ff;" onclick="applyHighlightColor('#ff00ff')"></div>
+                            <div class="color-swatch" style="background:#ffc0cb;" onclick="applyHighlightColor('#ffc0cb')"></div>
+                            <div class="color-swatch" style="background:#ffa500;" onclick="applyHighlightColor('#ffa500')"></div>
+                            <div class="color-swatch" style="background:transparent; border:1px solid red; position:relative;" title="Clear Highlight" onclick="applyHighlightColor('transparent')"><span style="color:red; font-size:10px; position:absolute; top:-2px; left:5px;">x</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-group" style="border-right: none;">
+                    <button class="tool-btn" title="Align Left" onclick="executeAction('justifyLeft')">Format Left</button>
+                    <button class="tool-btn" title="Align Center" onclick="executeAction('justifyCenter')">Center</button>
+                    <button class="tool-btn" title="Align Right" onclick="executeAction('justifyRight')">Right</button>
+                    <button class="tool-btn" title="Justify Content" onclick="executeAction('justifyFull')">Justify</button>
                 </div>
             </div>
         </div>
@@ -443,17 +498,35 @@
             }
         }
 
+        /* --- HIGHLIGHT ENGINE REGISTRY CONTROLS --- */
+        function toggleHighlightPalette(event) {
+            event.stopPropagation();
+            const palette = document.getElementById('textHighlightPalette');
+            palette.style.display = (palette.style.display === 'grid') ? 'none' : 'grid';
+        }
+
+        function applyHighlightColor(colorValue) {
+            if (colorValue === 'transparent') {
+                document.execCommand('removeFormat', false, null);
+            } else {
+                document.execCommand('hiliteColor', false, colorValue);
+            }
+            document.getElementById('textHighlightPalette').style.display = 'none';
+        }
+
         function toggleChartDropdown(event) {
             event.stopPropagation();
             const menu = document.getElementById('chartDropdownMenu');
             menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
         }
 
+        // Global viewport window monitoring to safely dismiss open interface menu elements
         window.addEventListener('click', () => {
             document.getElementById('chartDropdownMenu').style.display = 'none';
+            document.getElementById('textHighlightPalette').style.display = 'none';
         });
 
-        /* --- CHART INTEGRATION ENGINE --- */
+        /* --- CHART CORE INTEGRATION MOTOR --- */
         function insertDirectChart(chartType) {
             if (typeof Chart === 'undefined') {
                 alert("Charting engine library is still loading into your page context. Give it 2 seconds!");
@@ -503,6 +576,7 @@
                     data: {
                         labels: defaultLabels.map((lbl, i) => generatePercentageLabelString(lbl, defaultValues[i], defaultValues)),
                         datasets: [{
+                            label: 'Data Distribution Metric Scale', // Removes "undefined" header display layout bug from legend
                             data: defaultValues,
                             backgroundColor: ['#185abd', '#36a2eb', '#ff6384', '#4bc0c0'],
                             borderWidth: 1.5,
@@ -538,7 +612,7 @@
             return `${label}: ${val} (${percentage}%)`;
         }
 
-        /* --- DATA EDITOR CONTROLS --- */
+        /* --- DATA MODAL POPUP CONTROL EDITOR --- */
         function openEditorModal(chartId) {
             activeTargetChartId = chartId;
             const targetData = chartStorageRegistry[chartId];
