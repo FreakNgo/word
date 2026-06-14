@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antify Docs - Word Processor</title>
+    <title>Antify Docs - Premium Word Processor</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        /* CSS Variables for Office 365 Theme */
+        /* Premium Office 365 Theme */
         :root {
-            --primary-blue: #2b579a;
+            --primary-blue: #185abd;
             --ribbon-bg: #f3f2f1;
             --toolbar-bg: #ffffff;
             --border-color: #e1dfdd;
@@ -28,7 +32,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--page-bg);
             color: var(--text-color);
-            overflow: hidden; /* Prevent body scroll, handle in workspace */
+            overflow: hidden; 
         }
 
         /* --- CINEMATIC INTRO SCREEN --- */
@@ -82,13 +86,15 @@
         .header {
             background-color: var(--primary-blue);
             color: white;
-            padding: 8px 16px;
+            padding: 10px 20px;
             font-size: 14px;
             display: flex;
             align-items: center;
             gap: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 10;
         }
-        .header .app-name { font-weight: 600; letter-spacing: 1px; }
+        .header .app-name { font-weight: 600; letter-spacing: 1px; font-size: 16px; }
 
         /* Ribbon Toolbar */
         .ribbon {
@@ -96,6 +102,7 @@
             border-bottom: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
+            z-index: 5;
         }
         .ribbon-tabs {
             display: flex;
@@ -103,22 +110,25 @@
             border-bottom: 1px solid var(--border-color);
         }
         .tab {
-            padding: 6px 16px;
+            padding: 8px 20px;
             font-size: 13px;
             cursor: pointer;
             border-bottom: 2px solid transparent;
+            transition: background 0.2s;
         }
+        .tab:hover { background-color: var(--hover-color); }
         .tab.active {
             border-bottom: 2px solid var(--primary-blue);
             color: var(--primary-blue);
             font-weight: 600;
+            background-color: var(--ribbon-bg);
         }
         
         .toolbar {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            padding: 8px 16px;
+            gap: 8px;
+            padding: 10px 16px;
             background-color: var(--ribbon-bg);
             align-items: center;
         }
@@ -127,16 +137,16 @@
         .tool-group {
             display: flex;
             align-items: center;
-            gap: 2px;
-            border-right: 1px solid var(--active-color);
-            padding-right: 10px;
-            margin-right: 5px;
+            gap: 4px;
+            border-right: 1px solid #ccc;
+            padding-right: 12px;
+            margin-right: 4px;
         }
 
         .tool-btn {
             background: none;
             border: 1px solid transparent;
-            padding: 6px 10px;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
             color: var(--text-color);
@@ -146,20 +156,42 @@
             align-items: center;
             justify-content: center;
             transition: 0.2s;
+            font-weight: 600;
         }
-        .tool-btn:hover { background-color: var(--hover-color); }
+        .tool-btn:hover { background-color: var(--hover-color); border: 1px solid #ccc;}
         .tool-btn:active { background-color: var(--active-color); }
-        .tool-btn.bold { font-weight: bold; }
+        .tool-btn.bold { font-weight: 800; }
         .tool-btn.italic { font-style: italic; }
         .tool-btn.underline { text-decoration: underline; }
 
-        select, input[type="color"] {
-            padding: 4px;
+        select {
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            height: 32px;
+        }
+
+        input[type="color"] {
+            padding: 0;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             background: white;
             cursor: pointer;
             height: 30px;
+            width: 30px;
+        }
+
+        .color-label {
+            font-size: 11px;
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
         }
 
         /* Workspace & Page */
@@ -175,14 +207,14 @@
         .page {
             background-color: white;
             width: 100%;
-            max-width: 816px; /* standard 8.5x11 aspect ratio width */
+            max-width: 816px; 
             min-height: 1056px;
-            padding: 96px; /* 1-inch margins */
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 96px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             outline: none;
             font-family: 'Arial', sans-serif;
             font-size: 16px;
-            line-height: 1.5;
+            line-height: 1.6;
             color: #000;
         }
 
@@ -190,16 +222,20 @@
             max-width: 100%;
             height: auto;
             cursor: pointer;
+            margin: 10px 0;
+            border: 1px solid transparent;
         }
+        .page img:hover { border: 1px dashed #ccc; }
 
-        /* Hidden File Input */
+        /* Hidden Utility Elements */
         #img-upload { display: none; }
+        #chart-canvas-container { display: none; }
 
         /* Responsive Mobile Layout */
         @media (max-width: 768px) {
             .workspace { padding: 10px; }
             .page { padding: 30px; min-height: 800px; }
-            .tool-group { border-right: none; padding-right: 0; margin-right: 0; }
+            .tool-group { border-right: none; padding-right: 0; margin-right: 0; flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -213,129 +249,3 @@
         
         <div class="header">
             <span class="app-name">Antify Docs</span>
-            <span>Document1 - Saved locally</span>
-        </div>
-
-        <div class="ribbon">
-            <div class="ribbon-tabs">
-                <div class="tab active">Home</div>
-                <div class="tab" onclick="document.getElementById('img-upload').click()">Insert Image</div>
-                <div class="tab" onclick="insertChartPlaceholder()">Insert Chart</div>
-            </div>
-            
-            <div class="toolbar">
-                <div class="tool-group">
-                    <select id="fontName" onchange="formatDoc('fontName', this.value)">
-                        <option value="Arial">Arial</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Courier New">Courier New</option>
-                        <option value="Georgia">Georgia</option>
-                        <option value="Verdana">Verdana</option>
-                        <option value="Comic Sans MS">Comic Sans</option>
-                    </select>
-                    <select id="fontSize" onchange="formatDoc('fontSize', this.value)">
-                        <option value="1">Small</option>
-                        <option value="3" selected>Normal</option>
-                        <option value="5">Large</option>
-                        <option value="7">Huge</option>
-                    </select>
-                </div>
-
-                <div class="tool-group">
-                    <button class="tool-btn bold" onclick="formatDoc('bold')" title="Bold">B</button>
-                    <button class="tool-btn italic" onclick="formatDoc('italic')" title="Italic">I</button>
-                    <button class="tool-btn underline" onclick="formatDoc('underline')" title="Underline">U</button>
-                    <button class="tool-btn" onclick="formatDoc('strikeThrough')" title="Strikethrough"><s>S</s></button>
-                </div>
-
-                <div class="tool-group">
-                    <label style="font-size:12px; margin-right:4px;">Text</label>
-                    <input type="color" onchange="formatDoc('foreColor', this.value)" title="Text Color">
-                    <label style="font-size:12px; margin-left:8px; margin-right:4px;">Highlight</label>
-                    <input type="color" value="#ffff00" onchange="formatDoc('hiliteColor', this.value)" title="Highlight Color">
-                </div>
-
-                <div class="tool-group">
-                    <button class="tool-btn" onclick="formatDoc('justifyLeft')" title="Align Left">⫷</button>
-                    <button class="tool-btn" onclick="formatDoc('justifyCenter')" title="Align Center">☰</button>
-                    <button class="tool-btn" onclick="formatDoc('justifyRight')" title="Align Right">⫸</button>
-                    <button class="tool-btn" onclick="formatDoc('justifyFull')" title="Justify">▤</button>
-                </div>
-
-                <div class="tool-group">
-                    <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet List">• List</button>
-                    <button class="tool-btn" onclick="formatDoc('insertOrderedList')" title="Numbered List">1. List</button>
-                </div>
-            </div>
-        </div>
-
-        <input type="file" id="img-upload" accept="image/*">
-
-        <div class="workspace">
-            <div class="page" id="editor" contenteditable="true" spellcheck="true">
-                <br>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Main function to apply formatting
-        function formatDoc(command, value = null) {
-            document.execCommand(command, false, value);
-            document.getElementById('editor').focus();
-        }
-
-        // Focus editor on load
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('editor').focus();
-            }, 4000); // Wait for cinematic intro to finish
-        }
-
-        // Handle Image Upload and insertion into the document
-        document.getElementById('img-upload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // Create an image element visually
-                    const imgUrl = e.target.result;
-                    // Insert into cursor position
-                    formatDoc('insertImage', imgUrl);
-                }
-                reader.readAsDataURL(file);
-            }
-            // Reset input so the same image can be uploaded again if needed
-            this.value = '';
-        });
-
-        // Placeholder for Chart Generation
-        function insertChartPlaceholder() {
-            // Because real dynamic charts require heavy libraries like Chart.js,
-            // we will insert a generic visual table as a placeholder for standalone static environments.
-            const chartHtml = `
-                <br>
-                <table border="1" style="width:100%; border-collapse: collapse; text-align:center;">
-                    <tr style="background:#2b579a; color:white;">
-                        <th>Category</th><th>Value 1</th><th>Value 2</th>
-                    </tr>
-                    <tr><td>Item A</td><td>40%</td><td>60%</td></tr>
-                    <tr><td>Item B</td><td>20%</td><td>80%</td></tr>
-                    <tr><td>Item C</td><td>55%</td><td>45%</td></tr>
-                </table>
-                <p style="font-size:12px; color:gray; text-align:center;">[Placeholder for external Chart Integration]</p>
-                <br>
-            `;
-            formatDoc('insertHTML', chartHtml);
-        }
-
-        // Prevent standard tab behavior (which leaves the page) and insert spacing instead
-        document.getElementById('editor').addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                formatDoc('insertHTML', '&nbsp;&nbsp;&nbsp;&nbsp;');
-            }
-        });
-    </script>
-</body>
-</html>
