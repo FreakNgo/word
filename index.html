@@ -37,7 +37,7 @@
             position: relative;
         }
 
-        /* --- OVERLAY INTRO SCREEN --- */
+        /* --- BULLETPROOF OVERLAY INTRO SCREEN --- */
         #intro-screen {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -46,18 +46,16 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 99999;
-            transition: opacity 0.5s ease, transform 0.5s ease;
+            z-index: 999999; /* Boosted to absolute top layer */
+            opacity: 1;
+            transition: opacity 0.4s ease;
         }
 
         .cinematic-text {
             font-size: 72px;
             font-weight: 800;
             letter-spacing: 8px;
-            background: linear-gradient(
-                90deg, 
-                #ff5252, #ff793f, #ffb142, #33d9b2, #34ace0, #706fd3, #ff5252
-            );
+            background: linear-gradient(90deg, #ff5252, #ff793f, #ffb142, #33d9b2, #34ace0, #706fd3, #ff5252);
             background-size: 300% auto;
             color: transparent;
             -webkit-background-clip: text;
@@ -68,11 +66,12 @@
         }
 
         .skip-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 16px;
-            font-size: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 600;
             border-radius: 20px;
             cursor: pointer;
             font-family: inherit;
@@ -80,7 +79,7 @@
         }
 
         .skip-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.3);
         }
 
         @keyframes liquidRainbow {
@@ -182,59 +181,6 @@
             outline: none;
         }
 
-        .color-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        input[type="color"] {
-            border: none;
-            width: 28px;
-            height: 20px;
-            cursor: pointer;
-            background: transparent;
-        }
-
-        /* DROPDOWN MENU CONFIGS */
-        .chart-menu-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .chart-dropdown-options {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: white;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            z-index: 1000;
-        }
-
-        .chart-dropdown-options button {
-            color: var(--text-dark);
-            padding: 10px 14px;
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: none;
-            border: none;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .chart-dropdown-options button:hover {
-            background-color: var(--hover-bg);
-        }
-
         /* SHEET VIEWPORT ARCHITECTURE */
         .workspace {
             flex-grow: 1;
@@ -258,6 +204,7 @@
             word-wrap: break-word;
         }
 
+        /* --- STYLISH EDTIABLE CHART CONTAINER --- */
         .chart-wrapper-box {
             width: 100%;
             max-width: 520px;
@@ -268,12 +215,12 @@
             border-radius: 8px;
             position: relative;
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
+            transition: border-color 0.2s, background-color 0.2s;
         }
         
         .chart-wrapper-box:hover {
             border-color: #ff5252;
-            background: #fafafa;
+            background-color: #fafafa;
         }
         
         .chart-wrapper-box::before {
@@ -289,17 +236,13 @@
             font-weight: bold;
         }
 
-        #img-upload {
-            display: none;
-        }
-
-        /* --- PREMIUM MODERN EDITOR MODAL OVERLAY --- */
+        /* --- IN-CHART POPUP EDIT MODAL --- */
         .custom-modal-backdrop {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.4);
-            z-index: 100000;
+            background: rgba(0,0,0,0.5);
+            z-index: 200000;
             justify-content: center;
             align-items: center;
         }
@@ -355,13 +298,6 @@
 
         .modal-btn.save { background: var(--ms-blue); color: white; }
         .modal-btn.cancel { background: #edebe9; color: var(--text-dark); border-color: var(--border-color); }
-
-        @media (max-width: 768px) {
-            .workspace { padding: 8px; }
-            .page { padding: 25px; min-height: auto; }
-            .toolbar { padding: 8px; gap: 4px; }
-            .cinematic-text { font-size: 42px; }
-        }
     </style>
 </head>
 <body>
@@ -391,7 +327,6 @@
         <div class="ribbon">
             <div class="ribbon-tabs">
                 <div class="tab active">Home</div>
-                <div class="tab" onclick="document.getElementById('img-upload').click()">🖼️ Insert Image</div>
                 
                 <div class="chart-menu-container">
                     <div class="tab" style="color: var(--ms-blue); font-weight: bold;" onclick="toggleChartDropdown(event)">📊 Insert Chart ▾</div>
@@ -404,18 +339,11 @@
 
             <div class="toolbar">
                 <div class="tool-group">
-                    <button class="tool-btn" onclick="executeAction('undo')" title="Undo">↩️</button>
-                    <button class="tool-btn" onclick="executeAction('redo')" title="Redo">↪️</button>
+                    <button class="tool-btn" onclick="executeAction('undo')">↩️</button>
+                    <button class="tool-btn" onclick="executeAction('redo')">↪️</button>
                 </div>
 
                 <div class="tool-group">
-                    <select id="fontName" onchange="executeAction('fontName', this.value)">
-                        <option value="Arial" selected>Arial</option>
-                        <option value="Calibri">Calibri</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Verdana">Verdana</option>
-                    </select>
-
                     <select id="fontSizeSelection" onchange="changeSelectionFontSize(this.value)">
                         <option value="12px">12px</option>
                         <option value="16px" selected>16px</option>
@@ -429,20 +357,8 @@
                     <button class="tool-btn" style="font-style:italic;" onclick="executeAction('italic')">I</button>
                     <button class="tool-btn" style="text-decoration:underline;" onclick="executeAction('underline')">U</button>
                 </div>
-
-                <div class="tool-group">
-                    <button class="tool-btn" onclick="executeAction('insertUnorderedList')">• Bullets</button>
-                    <button class="tool-btn" onclick="executeAction('insertOrderedList')">1. Numbers</button>
-                </div>
-
-                <div class="tool-group">
-                    <button class="tool-btn" onclick="executeAction('justifyLeft')">⫷ Left</button>
-                    <button class="tool-btn" onclick="executeAction('justifyCenter')">☰ Center</button>
-                </div>
             </div>
         </div>
-
-        <input type="file" id="img-upload" accept="image/*">
 
         <div class="workspace">
             <div class="page" id="text-canvas" contenteditable="true" spellcheck="true">
@@ -452,37 +368,4 @@
     </div>
 
     <script>
-        // Global Map Tracking Active Instantiated Objects
-        const chartStorageRegistry = {};
-        let activeTargetChartId = null;
-
-        function executeAction(command, value = null) {
-            document.execCommand(command, false, value);
-            document.getElementById('text-canvas').focus();
-        }
-
-        function changeSelectionFontSize(sizeValue) {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                if (range.collapsed) {
-                    document.execCommand('fontSize', false, "3");
-                    const fontElements = document.getElementsByTagName("font");
-                    for (let i = 0; i < fontElements.length; i++) {
-                        if (fontElements[i].size === "3") {
-                            fontElements[i].removeAttribute("size");
-                            fontElements[i].style.fontSize = sizeValue;
-                        }
-                    }
-                } else {
-                    const span = document.createElement("span");
-                    span.style.fontSize = sizeValue;
-                    range.surroundContents(span);
-                }
-            }
-        }
-
-        function toggleChartDropdown(event) {
-            event.stopPropagation();
-            const menu = document.getElementById('chartDropdownMenu');
-            menu.style.
+        /* --- 1. CRITICAL PRI
