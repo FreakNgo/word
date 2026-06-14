@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document 1 - Antify Word</title>
+    <style>
+        /* RESET & CORE WINDOW SYSTEM */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            background-color: #F3F2F1; /* Word PC background gray */
+            color: #323130;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 1. TOP WINDOW TITLE BAR */
+        .title-bar {
+            background-color: #107C41; /* Premium Word Green */
+            color: white;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .title-bar-center {
+            font-weight: 600;
+        }
+
+        /* 2. MAIN PC RIBBON SYSTEM */
+        .ribbon-container {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #D2D0CE;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Tabs Menu */
+        .ribbon-tabs {
+            display: flex;
+            padding-left: 8px;
+            background-color: #F3F2F1;
+            border-bottom: 1px solid #EDEBE9;
+        }
+
+        .ribbon-tab {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            font-size: 13px;
+            color: #323130;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .ribbon-tab.file-tab {
+            background-color: #107C41;
+            color: white;
+            font-weight: 600;
+        }
+
+        .ribbon-tab.active-tab {
+            border-bottom: 2px solid #107C41;
+            color: #107C41;
+            font-weight: 600;
+            background-color: #FFFFFF;
+        }
+
+        /* Toolbar Content area */
+        .ribbon-panel {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            gap: 16px;
+            min-height: 64px;
+            background-color: #FFFFFF;
+        }
+
+        .ribbon-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 100%;
+        }
+
+        .ribbon-divider {
+            width: 1px;
+            height: 40px;
+            background-color: #EDEBE9;
+        }
+
+        /* Dropdowns */
+        .ribbon-select {
+            border: 1px solid #D2D0CE;
+            border-radius: 2px;
+            padding: 4px 8px;
+            font-size: 12px;
+            outline: none;
+            background-color: #FFFFFF;
+            color: #323130;
+            height: 28px;
+        }
+
+        .ribbon-select:hover {
+            background-color: #F3F2F1;
+            border-color: #A19F9D;
+        }
+
+        /* Action Buttons with Live Highlighting Feedback */
+        .ribbon-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 3px;
+            min-width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            color: #323130;
+            transition: all 0.1s ease;
+        }
+
+        .ribbon-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-color: #A19F9D;
+        }
+
+        /* CRITICAL REQUIREMENT: Gray, transparent interactive highlight box for checked buttons */
+        .ribbon-btn.active-state {
+            background-color: rgba(0, 0, 0, 0.08) !important;
+            border: 1px solid #8A8886 !important;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .btn-bold { font-weight: bold; font-family: 'Times New Roman', serif; }
+        .btn-italic { font-style: italic; font-family: 'Times New Roman', serif; }
+        .btn-underline { text-decoration: underline; font-family: 'Times New Roman', serif; }
+
+        /* 3. DESKTOP WORKSPACE & PAGE VIEW */
+        .workspace {
+            flex: 1;
+            overflow: auto;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: start;
+            background-color: #E1DFDD; /* Solid grey workspace canvas wrapping */
+        }
+
+        .word-page {
+            background-color: #FFFFFF;
+            width: 816px;       /* Exact US Letter Width */
+            min-h: 1056px;     /* Exact US Letter Height */
+            height: fit-content;
+            padding: 96px;     /* Professional 1-inch margins */
+            box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.1);
+            outline: none;
+            color: #000000;
+            font-size: 15px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            font-family: 'Calibri', Arial, sans-serif;
+        }
+
+        /* 4. BOTTOM STATUS BAR */
+        .status-bar {
+            background-color: #F3F2F1;
+            border-top: 1px solid #D2D0CE;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 11px;
+            color: #605E5C;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title-bar">
+        <div>Document1 - Saved to Device</div>
+        <div class="title-bar-center">Antify Word (Premium Desktop Engine)</div>
+        <div>60FPS Native</div>
+    </div>
+
+    <div class="ribbon-container">
+        <div class="ribbon-tabs">
+            <button class="ribbon-tab file-tab">File</button>
+            <button class="ribbon-tab active-tab">Home</button>
+            <button class="ribbon-tab">Insert</button>
+            <button class="ribbon-tab">Layout</button>
+        </div>
+
+        <div class="ribbon-panel">
+            <div class="ribbon-group">
+                <button class="ribbon-btn" onclick="format('undo')" title="Undo">⤺</button>
+                <button class="ribbon-btn" onclick="format('redo')" title="Redo">⤻</button>
+            </div>
+            
+            <div class="ribbon-divider"></div>
+
+            <div class="ribbon-group">
+                <select onchange="format('fontName', this.value)" class="ribbon-select" style="width: 130px;">
+                    <option value="Calibri">Calibri</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                </select>
+
+                <select onchange="format('fontSize', this.value)" class="ribbon-select" style="width: 55px;">
+                    <option value="3">11</option>
+                    <option value="4">14</option>
+                    <option value="5">18</option>
+                    <option value="6">24</option>
+                    <option value="7">36</option>
+                </select>
+            </div>
+
+            <div class="ribbon-divider"></div>
+
+            <div class="ribbon-group">
+                <button id="btn-bold" class="ribbon-btn btn-bold" onclick="format('bold')" title="Bold">B</button>
+                <button id="btn-italic" class="ribbon-btn btn-italic" onclick="format('italic')" title="Italic">I</button>
+                <button id="btn-underline" class="ribbon-btn btn-underline" onclick="format('underline')" title="Underline">U</button>
+                <button id="btn-strike" class="ribbon-btn" onclick="format('strikeThrough')" title="Strikethrough" style="font-size:11px; font-weight:600;">abc</button>
+            </div>
+
+            <div class="ribbon-divider"></div>
+
+            <div class="ribbon-group">
+                <button id="btn-left" class="ribbon-btn" onclick="format('justifyLeft')" title="Align Left">▤</button>
+                <button id="btn-center" class="ribbon-btn" onclick="format('justifyCenter')" title="Align Center">▧</button>
+                <button id="btn-right" class="ribbon-btn" onclick="format('justifyRight')" title="Align Right">▥</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="workspace">
+        <div class="word-page" id="editor" contenteditable="true">
+            Welcome to <b>Antify Word</b>. Select text or click format modifiers to view the live toolbar tracking state!
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div>Page 1 of 1</div>
+        <div>Desktop View Mode | 100% Canvas Scaling</div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+
+        // Core Text Formatting Trigger
+        function format(command, value = null) {
+            document.execCommand(command, false, value);
+            editor.focus();
+            checkActiveFormats(); // Instantly update highlight states on action click
+        }
+
+        // Live Checker Function: Monitors if selection/cursor context is Bold, Italic, etc.
+        function checkActiveFormats() {
+            // Check state conditions natively via DOM window execution tracker
+            toggleButtonState('btn-bold', document.queryCommandState('bold'));
+            toggleButtonState('btn-italic', document.queryCommandState('italic'));
+            toggleButtonState('btn-underline', document.queryCommandState('underline'));
+            toggleButtonState('btn-strike', document.queryCommandState('strikeThrough'));
+            
+            toggleButtonState('btn-left', document.queryCommandState('justifyLeft'));
+            toggleButtonState('btn-center', document.queryCommandState('justifyCenter'));
+            toggleButtonState('btn-right', document.queryCommandState('justifyRight'));
+        }
+
+        // Utility to inject/remove the transparent gray tracking box class
+        function toggleButtonState(elementId, isActive) {
+            const btn = document.getElementById(elementId);
+            if (isActive) {
+                btn.classList.add('active-state');
+            } else {
+                btn.classList.remove('active-state');
+            }
+        }
+
+        // Event Listeners: Track keyboard cursor navigation and mouse selection shifts 
+        editor.addEventListener('keyup', checkActiveFormats);
+        editor.addEventListener('mouseup', checkActiveFormats);
+        editor.addEventListener('click', checkActiveFormats);
+
+        // Autofocus editor on window load
+        window.onload = function() {
+            editor.focus();
+            checkActiveFormats();
+        };
+    </script>
+</body>
+</html>
