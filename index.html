@@ -224,7 +224,7 @@
             background-color: var(--hover-bg);
         }
 
-        /* WORKSPACE SHEET */
+        /* WORKSPACE CANVAS SHEET */
         .workspace {
             flex-grow: 1;
             overflow-y: auto;
@@ -255,7 +255,6 @@
             display: block;
         }
 
-        /* Style Container for Active Chart Canvases */
         .chart-wrapper-box {
             width: 100%;
             max-width: 500px;
@@ -301,8 +300,8 @@
                 <div class="chart-menu-container">
                     <div class="tab" style="color: var(--ms-blue); font-weight: bold;" onclick="toggleChartDropdown(event)">📊 Insert Chart ▾</div>
                     <div class="chart-dropdown-options" id="chartDropdownMenu">
-                        <button type="button" onclick="insertDirectChart('bar')">📊 Bar Chart</button>
-                        <button type="button" onclick="insertDirectChart('pie')">🍕 Pie Chart</button>
+                        <button type="button" onclick="promptChartData('bar')">📊 Bar Chart</button>
+                        <button type="button" onclick="promptChartData('pie')">🍕 Pie Chart</button>
                     </div>
                 </div>
             </div>
@@ -380,7 +379,6 @@
             document.getElementById('text-canvas').focus();
         }
 
-        // Font size modifier routine
         function changeSelectionFontSize(sizeValue) {
             const selection = window.getSelection();
             if (selection.rangeCount > 0) {
@@ -403,133 +401,4 @@
             document.getElementById('text-canvas').focus();
         }
 
-        // Toggle dropdown window menus safely
-        function toggleChartDropdown(event) {
-            event.stopPropagation();
-            const menu = document.getElementById('chartDropdownMenu');
-            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-        }
-
-        window.addEventListener('click', () => {
-            document.getElementById('chartDropdownMenu').style.display = 'none';
-        });
-
-        // Intro layer sliding out safely
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const intro = document.getElementById('intro-screen');
-                if (intro) {
-                    intro.style.opacity = '0';
-                    intro.style.transform = 'translateY(-100vh)';
-                    setTimeout(() => {
-                        intro.style.display = 'none';
-                        document.getElementById('text-canvas').focus();
-                    }, 600);
-                }
-            }, 3000);
-        });
-
-        // Image file picker listener
-        document.getElementById('img-upload').addEventListener('change', function(e) {
-            if (this.files && this.files[0]) {
-                const fileReader = new FileReader();
-                fileReader.onload = function(event) {
-                    executeAction('insertImage', event.target.result);
-                };
-                fileReader.readAsDataURL(this.files[0]);
-            }
-            this.value = '';
-        });
-
-        // FIXED PIE & BAR INLINE INJECTION ENGINE
-        function insertDirectChart(chartType) {
-            // Close window menu picker dropdown container
-            document.getElementById('chartDropdownMenu').style.display = 'none';
-            
-            const editor = document.getElementById('text-canvas');
-            const uniqueId = 'chart-' + Date.now();
-            
-            // Build the standard visible DOM tree wrapper frame block
-            const wrapperBox = document.createElement('div');
-            wrapperBox.className = 'chart-wrapper-box';
-            wrapperBox.setAttribute('contenteditable', 'false');
-            wrapperBox.id = uniqueId + '-box';
-            
-            const canvasElement = document.createElement('canvas');
-            canvasElement.id = uniqueId;
-            canvasElement.style.width = '100%';
-            canvasElement.style.height = '280px';
-            
-            wrapperBox.appendChild(canvasElement);
-
-            // Add a clean paragraph spacer below it so users don't get trapped inside the box block
-            const lineSpacer = document.createElement('p');
-            lineSpacer.innerHTML = '<br>';
-
-            // Injector Router: Drop directly into selection layout or append fallback safely
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0 && editor.contains(selection.getRangeAt(0).startContainer)) {
-                const textRange = selection.getRangeAt(0);
-                textRange.deleteContents();
-                textRange.insertNode(lineSpacer);
-                textRange.insertNode(wrapperBox);
-            } else {
-                editor.appendChild(wrapperBox);
-                editor.appendChild(lineSpacer);
-            }
-
-            // Fire off compilation build structure routine via ChartJS context properties
-            setTimeout(() => {
-                const targets = document.getElementById(uniqueId);
-                if (!targets) return;
-
-                const context = targets.getContext('2d');
-                
-                new Chart(context, {
-                    type: chartType,
-                    data: {
-                        labels: ['North Region', 'East Region', 'South Region', 'West Region', 'Central Hub'],
-                        datasets: [{
-                            label: 'Metrics Analysis Vol (%)',
-                            data: [35, 25, 20, 12, 8],
-                            backgroundColor: [
-                                '#185abd',
-                                '#36a2eb',
-                                '#ff6384',
-                                '#4bc0c0',
-                                '#ffce56'
-                            ],
-                            borderWidth: 1.5,
-                            borderColor: '#ffffff'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: chartType === 'bar' ? 'Regional Operational Metrics (Bar Performance)' : 'Regional Operational Share (Pie Distribution)',
-                                font: { size: 14, weight: 'bold', family: "'Open Sans', sans-serif" },
-                                color: '#323130'
-                            },
-                            legend: {
-                                position: 'bottom',
-                                labels: { boxWidth: 12, font: { size: 11 } }
-                            }
-                        }
-                    }
-                });
-            }, 40);
-        }
-
-        // Tab layout key hook
-        document.getElementById('text-canvas').addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                executeAction('insertHTML', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-            }
-        });
-    </script>
-</body>
-</html>
+        function toggleChartDropdown(event)
