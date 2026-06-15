@@ -3,21 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word for the Web - Professional Edition</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Georgia&family=Calibri&family=Courier+New&display=swap" rel="stylesheet">
+    <title>Antify Word Processor</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --office-blue: #107c41; /* M365 Excel/Word Professional Variant */
+            --office-blue: #0f52ba; 
             --border-muted: #d2d0ce;
-            --surface-bg: #f3f2f1;
+            --surface-bg: #e1e1e1;
             --text-dark: #323130;
-            --shadow-premium: 0 1px 3px rgba(0,0,0,0.115), 0 4px 12px rgba(0,0,0,0.08);
         }
 
         * {
@@ -27,7 +22,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             background-color: var(--surface-bg);
             color: var(--text-dark);
             height: 100vh;
@@ -36,41 +31,21 @@
             overflow: hidden;
         }
 
-        /* --- MICROSOFT WEB SUITE APP BAR --- */
+        /* --- TITLE HEADER BANNER --- */
         .app-header {
             background-color: var(--office-blue);
             color: white;
             padding: 0 16px;
-            height: 48px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-size: 14px;
             font-weight: 600;
             flex-shrink: 0;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
-        .app-title-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .app-logo {
-            font-size: 16px;
-            font-weight: 800;
-            background: white;
-            color: var(--office-blue);
-            width: 26px;
-            height: 26px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-        }
-
-        /* --- OFFICIAL M365 CONTROL RIBBON --- */
+        /* --- CONTROL RIBBON --- */
         .ribbon-container {
             background-color: #faf9f8;
             border-bottom: 1px solid var(--border-muted);
@@ -83,23 +58,28 @@
             display: flex;
             padding-left: 12px;
             border-bottom: 1px solid #edebe9;
+            align-items: center;
+            height: 40px;
         }
 
         .ribbon-tab {
-            padding: 10px 18px;
+            padding: 8px 16px;
             font-size: 13px;
             cursor: pointer;
             color: #323130;
-            border-bottom: 3px solid transparent;
             user-select: none;
         }
 
         .ribbon-tab.active {
+            color: var(--office-blue);
             font-weight: 600;
-            border-bottom-color: var(--office-blue);
+            border-bottom: 3px solid var(--office-blue);
+            height: 100%;
+            display: flex;
+            align-items: center;
         }
 
-        .dropdown-wrapper {
+        .insert-dropdown {
             position: relative;
             display: inline-block;
         }
@@ -111,87 +91,77 @@
             left: 0;
             background: white;
             border: 1px solid var(--border-muted);
-            border-radius: 4px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             z-index: 99999;
-            padding: 6px 0;
-            min-width: 180px;
+            padding: 4px 0;
+            min-width: 140px;
         }
 
         .dropdown-menu button {
             width: 100%;
-            padding: 10px 16px;
+            padding: 8px 12px;
             background: transparent;
             border: none;
             text-align: left;
-            font-family: inherit;
             font-size: 13px;
             cursor: pointer;
-            color: var(--text-dark);
         }
 
         .dropdown-menu button:hover { background-color: #f3f2f1; }
 
+        /* --- TOOLBAR CONTROLS --- */
         .toolbar {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             padding: 8px 16px;
-            background-color: #ffffff;
-            flex-wrap: wrap;
+            background-color: #f3f2f1;
+            border-bottom: 1px solid var(--border-muted);
         }
 
         .divider {
             width: 1px;
             height: 20px;
             background-color: var(--border-muted);
-            margin: 0 6px;
+            margin: 0 4px;
         }
 
         select {
-            padding: 4px 12px;
+            padding: 4px 8px;
             border: 1px solid var(--border-muted);
-            border-radius: 4px;
+            border-radius: 2px;
             background: white;
-            font-family: inherit;
             font-size: 13px;
-            height: 32px;
+            height: 28px;
             outline: none;
             cursor: pointer;
         }
 
-        select:focus { border-color: var(--office-blue); }
-
         .btn {
             background: transparent;
             border: 1px solid transparent;
-            padding: 4px 12px;
-            border-radius: 4px;
+            padding: 2px 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 32px;
-            font-family: inherit;
+            height: 28px;
             font-size: 13px;
-            font-weight: 600;
             color: var(--text-dark);
         }
 
-        .btn:hover { background-color: #edebe9; }
-        .btn:active { background-color: #e1dfdd; }
-        .btn-bold { font-weight: 800; font-size: 14px; }
-        .btn-italic { font-style: italic; font-size: 14px; }
-        .btn-underline { text-decoration: underline; font-size: 14px; }
+        .btn:hover { background-color: #edebe9; border-color: #bbb; }
+        .btn-bold { font-weight: bold; }
+        .btn-italic { font-style: italic; }
+        .btn-underline { text-decoration: underline; }
 
-        /* --- THE WORD LAYOUT CANALS --- */
+        /* --- SCROLL WORKSPACE --- */
         .workspace-scroll-container {
             flex: 1;
             overflow-y: auto;
             padding: 40px 20px;
             display: flex;
             justify-content: center;
-            background-color: var(--surface-bg);
         }
 
         .document-page {
@@ -201,64 +171,49 @@
             min-height: 1056px;
             height: max-content;
             padding: 96px; 
-            box-shadow: var(--shadow-premium);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
             outline: none;
-            font-family: 'Segoe UI', Arial, sans-serif;
             font-size: 16px;
-            line-height: 1.6;
+            line-height: 1.5;
             color: #000000;
             word-wrap: break-word;
         }
 
-        /* --- WORD COMPONENT WRAPPER SYSTEMS --- */
+        /* --- EXACT MATCH CHART SHELL AS SEEN IN SCREENSHOT --- */
         .ms-chart-shell {
             width: 100%;
-            max-width: 540px;
-            margin: 24px 0;
+            max-width: 500px;
+            margin: 24px auto;
             background: #ffffff;
-            border: 1px solid var(--border-muted);
-            border-radius: 6px;
+            border: 2px dashed #0f52ba;
+            border-radius: 8px;
             padding: 16px;
             position: relative;
             display: block; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
 
-        .ms-chart-shell:hover { border-color: #8a8886; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-
-        .chart-layout-menu {
+        .chart-edit-badge {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: white;
-            border: 1px solid var(--border-muted);
-            border-radius: 4px;
-            display: flex;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            z-index: 100;
-        }
-
-        .chart-layout-menu button {
-            background: transparent;
-            border: none;
-            padding: 6px 12px;
-            font-size: 12px;
+            top: -12px;
+            right: 16px;
+            background: #0f52ba;
+            color: white;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 20px;
             cursor: pointer;
-            font-weight: 600;
-            color: #605e5c;
-            border-right: 1px solid #edebe9;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 10;
         }
-
-        .chart-layout-menu button:last-child { border-right: none; }
-        .chart-layout-menu button:hover { background-color: #f3f2f1; color: var(--office-blue); }
 
         .canvas-container-box {
             width: 100%;
-            height: 250px;
-            margin-top: 28px;
+            height: 260px;
+            margin-top: 10px;
         }
 
-        /* --- SPREADSHEET MODAL DIALOG --- */
+        /* --- INTEGRATED EXCEL MODAL --- */
         .spreadsheet-modal-backdrop {
             display: none;
             position: fixed;
@@ -267,10 +222,3 @@
             z-index: 999999;
             justify-content: center;
             align-items: center;
-        }
-
-        .spreadsheet-container-box {
-            background: white;
-            border-radius: 6px;
-            width: 480px;
-            box-shadow: 0 16px 40px rgba(0,
