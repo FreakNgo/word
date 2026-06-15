@@ -222,3 +222,294 @@
             z-index: 999999;
             justify-content: center;
             align-items: center;
+        }
+
+        .spreadsheet-container-box {
+            background: white;
+            border-radius: 6px;
+            width: 440px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+            border: 1px solid #a19f9d;
+            overflow: hidden;
+        }
+
+        .spreadsheet-header-row {
+            background: var(--office-blue);
+            color: white;
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .spreadsheet-grid-body {
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .excel-row-item {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .excel-row-item span { font-size: 12px; font-weight: 600; width: 60px; }
+        .excel-row-item input {
+            padding: 6px 10px;
+            font-size: 13px;
+            border: 1px solid var(--border-muted);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .excel-row-item input[type="text"] { flex: 2; }
+        .excel-row-item input[type="number"] { flex: 1; text-align: right; }
+
+        .excel-actions-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f3f2f1;
+            border-top: 1px solid var(--border-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <span>Antify Word Processor</span>
+        <span style="font-size: 12px; font-weight: normal;">Cloud Sandbox Engine</span>
+    </div>
+
+    <div class="ribbon-container">
+        <div class="ribbon-tabs">
+            <div class="ribbon-tab active">Home</div>
+            <div class="insert-dropdown">
+                <div class="ribbon-tab" style="font-weight: bold;" onclick="toggleInsertMenu(event)">📊 Insert Chart ▾</div>
+                <div class="dropdown-menu" id="insertMenu">
+                    <button type="button" onclick="insertChart('bar')">📊 Bar Chart</button>
+                    <button type="button" onclick="insertChart('pie')">🍕 Pie Chart</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <button class="btn" title="Undo" onclick="runCmd('undo')">↩️</button>
+            <button class="btn" title="Redo" onclick="runCmd('redo')">↪️</button>
+            
+            <div class="divider"></div>
+
+            <select id="fontFamilyMenu" onchange="runCmd('fontName', this.value)">
+                <option value="Arial" selected>Arial</option>
+                <option value="Calibri">Calibri</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Segoe UI">Segoe UI</option>
+            </select>
+
+            <select id="fontSizeMenu" onchange="alterFontSize(this.value)">
+                <option value="12px">12px</option>
+                <option value="16px" selected>16px</option>
+                <option value="20px">20px</option>
+                <option value="24px">24px</option>
+                <option value="32px">32px</option>
+            </select>
+
+            <div class="divider"></div>
+
+            <button class="btn btn-bold" title="Bold" onclick="runCmd('bold')">B</button>
+            <button class="btn btn-italic" title="Italic" onclick="runCmd('italic')">I</button>
+            <button class="btn btn-underline" title="Underline" onclick="runCmd('underline')">U</button>
+        </div>
+    </div>
+
+    <div class="spreadsheet-modal-backdrop" id="excelDataModal">
+        <div class="spreadsheet-container-box">
+            <div class="spreadsheet-header-row">
+                <span>Workbook Editor Panel</span>
+                <span style="cursor:pointer; font-weight:bold;" onclick="closeModal()">✕</span>
+            </div>
+            <div class="spreadsheet-grid-body" id="excelRowsTarget"></div>
+            <div class="excel-actions-footer">
+                <button class="btn" style="background:#edebe9;" onclick="closeModal()">Cancel</button>
+                <button class="btn" style="background:var(--office-blue); color:white; font-weight:bold;" onclick="applyUpdatedData()">Apply Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="workspace-scroll-container">
+        <div class="document-page" id="wordDocumentCanvas" contenteditable="true" spellcheck="false">
+            <p>Welcome to Antify Docs! Start writing your document here...</p>
+        </div>
+    </div>
+
+    <script>
+        const chartStorageRegistry = {};
+        let globallyTrackedChartId = null;
+
+        function runCmd(command, value = null) {
+            document.execCommand(command, false, value);
+            document.getElementById('wordDocumentCanvas').focus();
+        }
+
+        /* --- BULLETPROOF TEXT SIZE CONFIGURATOR --- */
+        function alterFontSize(sizeValue) {
+            document.getElementById('wordDocumentCanvas').focus();
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0 && !selection.isCollapsed) {
+                const range = selection.getRangeAt(0);
+                const styleWrapper = document.createElement("span");
+                styleWrapper.style.fontSize = sizeValue;
+                
+                try {
+                    styleWrapper.appendChild(range.extractContents());
+                    range.insertNode(styleWrapper);
+                } catch(e) {
+                    document.execCommand('fontSize', false, '3');
+                }
+            }
+        }
+
+        function toggleInsertMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('insertMenu');
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        window.addEventListener('click', () => {
+            document.getElementById('insertMenu').style.display = 'none';
+        });
+
+        /* --- DYNAMIC CHART GENERATOR MATRIX --- */
+        function insertChart(type) {
+            document.getElementById('insertMenu').style.display = 'none';
+            const canvasElement = document.getElementById('wordDocumentCanvas');
+            const uniqueChartId = 'chart-' + Date.now();
+
+            const labels = ['Apples', 'Oranges', 'Bananas', 'Grapes'];
+            const dataValues = [10, 29, 70, 55];
+
+            const shell = document.createElement('div');
+            shell.className = 'ms-chart-shell';
+            shell.setAttribute('contenteditable', 'false');
+            shell.id = uniqueChartId + '-shell';
+
+            // Exact match blue helper badge button layout
+            const badge = document.createElement('div');
+            badge.className = 'chart-edit-badge';
+            badge.innerHTML = '⚡ Click Graph to Edit Names & %';
+            badge.onclick = () => openModal(uniqueChartId);
+            shell.appendChild(badge);
+
+            const containerBox = document.createElement('div');
+            containerBox.className = 'canvas-container-box';
+            
+            const nativeCanvas = document.createElement('canvas');
+            nativeCanvas.id = uniqueChartId;
+            containerBox.appendChild(nativeCanvas);
+            shell.appendChild(containerBox);
+
+            // Clean line return mapping to enable natural typing below chart components
+            const spacingBreak = document.createElement('p');
+            spacingBreak.innerHTML = '<br>';
+
+            canvasElement.appendChild(shell);
+            canvasElement.appendChild(spacingBreak);
+
+            setTimeout(() => {
+                const ctx = document.getElementById(uniqueChartId).getContext('2d');
+                const builtChartInstance = new Chart(ctx, {
+                    type: type,
+                    data: {
+                        labels: labels.map((l, i) => `${l}: ${dataValues[i]} (${Math.round((dataValues[i]/164)*100)}%)`),
+                        datasets: [{
+                            data: dataValues,
+                            backgroundColor: ['#0f52ba', '#34a853', '#ff6b81', '#4dbdbe'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: 'Bar Analysis Metrics Display', font: { size: 14, weight: 'bold' } },
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+
+                chartStorageRegistry[uniqueChartId] = {
+                    instance: builtChartInstance,
+                    type: type,
+                    labels: labels,
+                    values: dataValues
+                };
+            }, 50);
+        }
+
+        /* --- MODAL WORKBOOK CONTROLLERS --- */
+        function openModal(chartId) {
+            globallyTrackedChartId = chartId;
+            const targetData = chartStorageRegistry[chartId];
+            if (!targetData) return;
+
+            const grid = document.getElementById('excelRowsTarget');
+            grid.innerHTML = '';
+
+            targetData.labels.forEach((label, idx) => {
+                const row = document.createElement('div');
+                row.className = 'excel-row-item';
+                row.innerHTML = `
+                    <span>Item ${idx + 1}:</span>
+                    <input type="text" value="${label}" id="input-lbl-${idx}">
+                    <input type="number" value="${targetData.values[idx]}" id="input-val-${idx}">
+                `;
+                grid.appendChild(row);
+            });
+
+            document.getElementById('excelDataModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('excelDataModal').style.display = 'none';
+            globallyTrackedChartId = null;
+        }
+
+        function applyUpdatedData() {
+            if (!globallyTrackedChartId) return;
+            const targetObj = chartStorageRegistry[globallyTrackedChartId];
+            if (!targetObj) return;
+
+            const newLabels = [];
+            const newValues = [];
+            let totalSum = 0;
+
+            targetObj.labels.forEach((_, idx) => {
+                const txt = document.getElementById(`input-lbl-${idx}`).value.trim() || `Item ${idx+1}`;
+                const val = parseFloat(document.getElementById(`input-val-${idx}`).value) || 0;
+                newLabels.push(txt);
+                newValues.push(val);
+                totalSum += val;
+            });
+
+            targetObj.labels = newLabels;
+            targetObj.values = newValues;
+
+            // Re-render strings inside chart view matching precise presentation
+            targetObj.instance.data.labels = newLabels.map((l, i) => {
+                const percentage = totalSum > 0 ? Math.round((newValues[i] / totalSum) * 100) : 0;
+                return `${l}: ${newValues[i]} (${percentage}%)`;
+            });
+            targetObj.instance.data.datasets[0].data = newValues;
+            targetObj.instance.update();
+
+            closeModal();
+        }
+    </script>
+</body>
+</html>
