@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word for the Web</title>
+    <title>Word for the Web - Professional Edition</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Open+Sans:wght@400;600&family=Georgia&family=Calibri&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Georgia&family=Calibri&family=Courier+New&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --word-blue: #107c41; 
-            --border-gray: #d2d0ce;
-            --text-main: #323130;
-            --page-shadow: rgba(0, 0, 0, 0.133);
+            --office-blue: #107c41; /* M365 Excel/Word Professional Variant */
+            --border-muted: #d2d0ce;
+            --surface-bg: #f3f2f1;
+            --text-dark: #323130;
+            --shadow-premium: 0 1px 3px rgba(0,0,0,0.115), 0 4px 12px rgba(0,0,0,0.08);
         }
 
         * {
@@ -27,17 +28,17 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f3f2f1;
-            color: var(--text-main);
+            background-color: var(--surface-bg);
+            color: var(--text-dark);
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        /* --- APPLICATION BRAND HEADER --- */
+        /* --- MICROSOFT WEB SUITE APP BAR --- */
         .app-header {
-            background-color: #107c41;
+            background-color: var(--office-blue);
             color: white;
             padding: 0 16px;
             height: 48px;
@@ -47,6 +48,7 @@
             font-size: 14px;
             font-weight: 600;
             flex-shrink: 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
         .app-title-group {
@@ -56,22 +58,22 @@
         }
 
         .app-logo {
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 800;
             background: white;
-            color: #107c41;
-            width: 28px;
-            height: 28px;
+            color: var(--office-blue);
+            width: 26px;
+            height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 4px;
         }
 
-        /* --- CONTROL RIBBON SYSTEM --- */
+        /* --- OFFICIAL M365 CONTROL RIBBON --- */
         .ribbon-container {
             background-color: #faf9f8;
-            border-bottom: 1px solid var(--border-gray);
+            border-bottom: 1px solid var(--border-muted);
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
@@ -84,17 +86,17 @@
         }
 
         .ribbon-tab {
-            padding: 8px 16px;
+            padding: 10px 18px;
             font-size: 13px;
             cursor: pointer;
             color: #323130;
-            border-bottom: 2px solid transparent;
+            border-bottom: 3px solid transparent;
             user-select: none;
         }
 
         .ribbon-tab.active {
             font-weight: 600;
-            border-bottom-color: var(--word-blue);
+            border-bottom-color: var(--office-blue);
         }
 
         .dropdown-wrapper {
@@ -108,24 +110,24 @@
             top: 100%;
             left: 0;
             background: white;
-            border: 1px solid var(--border-gray);
+            border: 1px solid var(--border-muted);
             border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
             z-index: 99999;
-            padding: 4px 0;
-            min-width: 160px;
+            padding: 6px 0;
+            min-width: 180px;
         }
 
         .dropdown-menu button {
             width: 100%;
-            padding: 8px 12px;
+            padding: 10px 16px;
             background: transparent;
             border: none;
             text-align: left;
             font-family: inherit;
             font-size: 13px;
             cursor: pointer;
-            color: var(--text-main);
+            color: var(--text-dark);
         }
 
         .dropdown-menu button:hover { background-color: #f3f2f1; }
@@ -134,21 +136,21 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
+            padding: 8px 16px;
             background-color: #ffffff;
             flex-wrap: wrap;
         }
 
         .divider {
             width: 1px;
-            height: 22px;
-            background-color: var(--border-gray);
-            margin: 0 4px;
+            height: 20px;
+            background-color: var(--border-muted);
+            margin: 0 6px;
         }
 
         select {
-            padding: 4px 8px;
-            border: 1px solid var(--border-gray);
+            padding: 4px 12px;
+            border: 1px solid var(--border-muted);
             border-radius: 4px;
             background: white;
             font-family: inherit;
@@ -158,37 +160,38 @@
             cursor: pointer;
         }
 
-        select:focus { border-color: var(--word-blue); }
+        select:focus { border-color: var(--office-blue); }
 
         .btn {
             background: transparent;
             border: 1px solid transparent;
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
             height: 32px;
             font-family: inherit;
             font-size: 13px;
-            color: var(--text-main);
+            font-weight: 600;
+            color: var(--text-dark);
         }
 
         .btn:hover { background-color: #edebe9; }
-        .btn-bold { font-weight: 700; }
-        .btn-italic { font-style: italic; }
-        .btn-underline { text-decoration: underline; }
+        .btn:active { background-color: #e1dfdd; }
+        .btn-bold { font-weight: 800; font-size: 14px; }
+        .btn-italic { font-style: italic; font-size: 14px; }
+        .btn-underline { text-decoration: underline; font-size: 14px; }
 
-        /* --- PRINT WORKSPACE AREA --- */
+        /* --- THE WORD LAYOUT CANALS --- */
         .workspace-scroll-container {
             flex: 1;
             overflow-y: auto;
-            padding: 32px 16px;
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
-            background-color: #f3f2f1;
+            background-color: var(--surface-bg);
         }
 
         .document-page {
@@ -198,47 +201,48 @@
             min-height: 1056px;
             height: max-content;
             padding: 96px; 
-            box-shadow: 0 1px 3px var(--page-shadow), 0 4px 8px rgba(0, 0, 0, 0.06);
+            box-shadow: var(--shadow-premium);
             outline: none;
             font-family: 'Segoe UI', Arial, sans-serif;
             font-size: 16px;
-            line-height: 1.5;
+            line-height: 1.6;
             color: #000000;
             word-wrap: break-word;
         }
 
-        /* --- CHART COMPONENT HOUSING SHIELDS --- */
+        /* --- WORD COMPONENT WRAPPER SYSTEMS --- */
         .ms-chart-shell {
             width: 100%;
-            max-width: 520px;
-            margin: 16px 0;
+            max-width: 540px;
+            margin: 24px 0;
             background: #ffffff;
-            border: 1px solid var(--border-gray);
-            border-radius: 4px;
-            padding: 12px;
+            border: 1px solid var(--border-muted);
+            border-radius: 6px;
+            padding: 16px;
             position: relative;
             display: block; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
 
-        .ms-chart-shell:hover { border-color: #8a8886; }
+        .ms-chart-shell:hover { border-color: #8a8886; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
         .chart-layout-menu {
             position: absolute;
-            top: 8px;
-            right: 8px;
+            top: 10px;
+            right: 10px;
             background: white;
-            border: 1px solid var(--border-gray);
+            border: 1px solid var(--border-muted);
             border-radius: 4px;
             display: flex;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             z-index: 100;
         }
 
         .chart-layout-menu button {
             background: transparent;
             border: none;
-            padding: 6px 10px;
-            font-size: 11px;
+            padding: 6px 12px;
+            font-size: 12px;
             cursor: pointer;
             font-weight: 600;
             color: #605e5c;
@@ -246,15 +250,15 @@
         }
 
         .chart-layout-menu button:last-child { border-right: none; }
-        .chart-layout-menu button:hover { background-color: #f3f2f1; color: var(--word-blue); }
+        .chart-layout-menu button:hover { background-color: #f3f2f1; color: var(--office-blue); }
 
         .canvas-container-box {
             width: 100%;
-            height: 240px;
-            margin-top: 24px;
+            height: 250px;
+            margin-top: 28px;
         }
 
-        /* --- SPREADSHEET EDITOR MODAL --- */
+        /* --- SPREADSHEET MODAL DIALOG --- */
         .spreadsheet-modal-backdrop {
             display: none;
             position: fixed;
@@ -268,100 +272,5 @@
         .spreadsheet-container-box {
             background: white;
             border-radius: 6px;
-            width: 460px;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.25);
-            border: 1px solid #a19f9d;
-            overflow: hidden;
-        }
-
-        .spreadsheet-header-row {
-            background: #107c41;
-            color: white;
-            padding: 12px 16px;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .spreadsheet-grid-body {
-            padding: 16px;
-            max-height: 320px;
-            overflow-y: auto;
-            background-color: #faf9f8;
-        }
-
-        .excel-row-item {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-            align-items: center;
-        }
-
-        .excel-row-item span { font-size: 12px; font-weight: 600; color: #605e5c; width: 60px; }
-        .excel-row-item input {
-            padding: 6px 10px;
-            font-size: 13px;
-            border: 1px solid var(--border-gray);
-            border-radius: 3px;
-            outline: none;
-            background: white;
-            font-family: inherit;
-        }
-
-        .excel-row-item input[type="text"] { flex: 2; font-weight: 600; }
-        .excel-row-item input[type="number"] { flex: 1; text-align: right; }
-
-        .excel-actions-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            padding: 12px 16px;
-            background: #f3f2f1;
-            border-top: 1px solid var(--border-gray);
-        }
-    </style>
-</head>
-<body>
-
-    <div class="app-header">
-        <div class="app-title-group">
-            <div class="app-logo">W</div>
-            <span>Document1 - Word Engine</span>
-        </div>
-        <div style="font-size: 12px; opacity: 0.9;">Saved to Cloud Sandbox</div>
-    </div>
-
-    <div class="ribbon-container">
-        <div class="ribbon-tabs">
-            <div class="ribbon-tab active">Home</div>
-            <div class="dropdown-wrapper">
-                <div class="ribbon-tab" style="font-weight: 600; color: #107c41;" onclick="toggleMenuDropdown(event, 'insertMenu')">Insert ▾</div>
-                <div class="dropdown-menu" id="insertMenu">
-                    <button type="button" onclick="createNewChartComponent('bar')">📊 Column Chart</button>
-                    <button type="button" onclick="createNewChartComponent('pie')">🍕 Pie Chart</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="toolbar">
-            <select id="fontNameMenu" onchange="applyInlineStyles('fontName', this.value)">
-                <option value="Segoe UI" selected>Segoe UI</option>
-                <option value="Arial">Arial</option>
-                <option value="Calibri">Calibri</option>
-                <option value="Georgia">Georgia</option>
-            </select>
-
-            <select id="fontSizeMenu" onchange="changeSelectionFontSize(this.value)">
-                <option value="12px">12</option>
-                <option value="16px" selected>16</option>
-                <option value="20px">20</option>
-                <option value="24px">24</option>
-                <option value="32px">32</option>
-            </select>
-
-            <div class="divider"></div>
-
-            <button class="btn btn-bold" title="Bold" onmousedown="preventFocusLoss(event)" onclick="applyInlineStyles('bold')">B</button>
-            <button class="btn btn-italic" title="Italic" onmousedown="preventFocusLoss(event)" onclick
+            width: 480px;
+            box-shadow: 0 16px 40px rgba(0,
