@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antify Docs - Premium Word Processor</title>
+    <title>Word for the Web</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --ms-blue: #185abd;
+            --word-blue: #107c41; /* Latest Microsoft 365 Refresh Theme Color */
+            --word-blue-hover: #0a5a2f;
             --ribbon-bg: #f3f2f1;
-            --toolbar-bg: #ffffff;
-            --border-color: #d2d0ce;
-            --page-bg: #eaeaea;
-            --text-dark: #323130;
-            --hover-bg: #edebe9;
+            --border-gray: #d2d0ce;
+            --text-main: #323130;
+            --page-shadow: rgba(0, 0, 0, 0.133);
         }
 
         * {
@@ -29,464 +28,633 @@
         }
 
         body {
-            font-family: 'Open Sans', 'Segoe UI', Tahoma, sans-serif;
-            background-color: var(--page-bg);
-            color: var(--text-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f2f1;
+            color: var(--text-main);
             height: 100vh;
-            width: 100vw;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
-            position: relative;
         }
 
-        /* --- SELF-DESTRUCTING INTRO OVERLAY --- */
-        #intro-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: #05050a;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 999999;
-            animation: absoluteSelfDestruct 0.5s ease 1s forwards;
-        }
-
-        .cinematic-text {
-            font-size: 72px;
-            font-weight: 800;
-            letter-spacing: 8px;
-            background: linear-gradient(90deg, #ff5252, #ff793f, #ffb142, #33d9b2, #34ace0, #706fd3, #ff5252);
-            background-size: 300% auto;
-            color: transparent;
-            -webkit-background-clip: text;
-            background-clip: text;
-            animation: liquidRainbow 3s linear infinite;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .skip-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 10px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 20px;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        @keyframes liquidRainbow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 300% 50%; }
-        }
-
-        @keyframes absoluteSelfDestruct {
-            0% { opacity: 1; pointer-events: auto; visibility: visible; }
-            99% { opacity: 0; pointer-events: auto; visibility: visible; }
-            100% { opacity: 0; pointer-events: none; visibility: hidden; display: none !important; }
-        }
-
-        /* --- MAIN APPLICATION CONTENT LAYOUT --- */
-        #app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100vw;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .header {
-            background-color: var(--ms-blue);
+        /* --- MICROSOFT APPLICATION HEADER --- */
+        .app-header {
+            background-color: #107c41;
             color: white;
-            padding: 12px 20px;
-            font-size: 14px;
+            padding: 0 16px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            font-size: 14px;
             font-weight: 600;
             flex-shrink: 0;
         }
 
-        .ribbon {
-            background-color: var(--toolbar-bg);
-            border-bottom: 1px solid var(--border-color);
+        .app-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .app-logo {
+            font-size: 18px;
+            font-weight: 700;
+            background: white;
+            color: #107c41;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        /* --- M365 RIBBON & TOOLBAR SYSTEM --- */
+        .ribbon-container {
+            background-color: #faf9f8;
+            border-bottom: 1px solid var(--border-gray);
             flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         .ribbon-tabs {
             display: flex;
-            background: #faf9f8;
-            padding-left: 10px;
-            border-bottom: 1px solid var(--border-color);
-            align-items: center;
+            padding-left: 12px;
+            border-bottom: 1px solid #edebe9;
         }
 
-        .tab {
-            padding: 10px 20px;
+        .ribbon-tab {
+            padding: 8px 16px;
             font-size: 13px;
             cursor: pointer;
-            font-weight: 600;
-            color: #595959;
-            border-bottom: 3px solid transparent;
+            color: #323130;
+            border-bottom: 2px solid transparent;
             user-select: none;
         }
 
-        .tab.active {
-            border-bottom: 3px solid var(--ms-blue);
-            color: var(--ms-blue);
-        }
-
-        .chart-menu-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .chart-dropdown-options {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: #ffffff;
-            min-width: 150px;
-            box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
-            z-index: 50000;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 4px 0;
-        }
-
-        .chart-dropdown-options button {
-            width: 100%;
-            background: transparent;
-            border: none;
-            padding: 10px 16px;
-            text-align: left;
-            font-size: 13px;
-            font-family: inherit;
-            cursor: pointer;
-            color: var(--text-dark);
-        }
-
-        .chart-dropdown-options button:hover {
-            background-color: var(--hover-bg);
+        .ribbon-tab.active {
+            font-weight: 600;
+            border-bottom-color: var(--word-blue);
         }
 
         .toolbar {
             display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 10px 16px;
-            background-color: var(--ribbon-bg);
-            align-items: center;
-        }
-
-        .tool-group {
-            display: flex;
             align-items: center;
             gap: 4px;
-            border-right: 1px solid #d2d0ce;
-            padding-right: 10px;
-            margin-right: 4px;
+            padding: 6px 12px;
+            background-color: #ffffff;
+            flex-wrap: wrap;
         }
 
-        .tool-btn {
+        .divider {
+            width: 1px;
+            height: 22px;
+            background-color: var(--border-gray);
+            margin: 0 6px;
+        }
+
+        /* Toolbar Action Buttons */
+        .btn {
             background: transparent;
             border: 1px solid transparent;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 4px;
             cursor: pointer;
-            color: var(--text-dark);
-            font-size: 13px;
-            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            min-width: 32px;
+            gap: 6px;
             height: 32px;
+            font-family: inherit;
+            font-size: 13px;
+            color: var(--text-main);
         }
 
-        .tool-btn:hover {
-            background-color: var(--hover-bg);
-            border: 1px solid #c8c6c4;
+        .btn:hover {
+            background-color: #edebe9;
         }
 
-        .highlight-picker-wrapper {
+        .btn:active {
+            background-color: #e1dfdd;
+        }
+
+        .btn-bold { font-weight: 700; font-size: 14px; }
+        .btn-italic { font-style: italic; font-size: 14px; }
+        .btn-underline { text-decoration: underline; font-size: 14px; }
+
+        /* Complex Dropdown UI Components */
+        .dropdown-wrapper {
             position: relative;
             display: inline-block;
         }
 
-        .highlight-palette {
+        .dropdown-menu {
             display: none;
             position: absolute;
             top: 100%;
             left: 0;
             background: white;
-            border: 1px solid var(--border-color);
-            padding: 6px;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-gray);
             border-radius: 4px;
-            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 99999;
+            padding: 4px 0;
+            min-width: 160px;
+        }
+
+        .dropdown-menu button {
+            width: 100%;
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            text-align: left;
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        .dropdown-menu button:hover {
+            background-color: #f3f2f1;
+        }
+
+        /* Color Picker Palette Grid Layout */
+        .color-palette-grid {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            padding: 8px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 99999;
         }
 
         .color-swatch {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 2px;
             cursor: pointer;
             border: 1px solid rgba(0,0,0,0.1);
         }
 
-        .color-swatch:hover {
-            transform: scale(1.1);
-        }
-
-        select {
-            padding: 6px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background: white;
-            font-family: inherit;
-            font-size: 13px;
-            height: 32px;
-            outline: none;
-        }
-
-        /* VIEWPORT CORE DESKTOP VIEW */
-        .workspace {
-            flex: 1 1 auto;
+        /* --- THE PRINT-LAYOUT VIEWPORT WORKSPACE --- */
+        .workspace-scroll-container {
+            flex: 1;
             overflow-y: auto;
-            padding: 40px 20px;
+            padding: 32px 16px;
             display: flex;
             justify-content: center;
-            background-color: var(--page-bg);
+            background-color: #f3f2f1;
         }
 
-        .page {
-            background-color: white;
+        .document-page {
+            background-color: #ffffff;
             width: 100%;
-            max-width: 812px;
-            min-height: 1048px;
+            max-width: 816px; /* Standard US Letter Width Scale Ratio */
+            min-height: 1056px;
             height: max-content;
-            padding: 90px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            padding: 96px; /* 1-inch Standard Word Document Margins */
+            box-shadow: 0 1px 3px var(--page-shadow), 0 4px 8px rgba(0, 0, 0, 0.06);
             outline: none;
-            font-size: 16px;
-            line-height: 1.6;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
             color: #000000;
             word-wrap: break-word;
         }
 
-        /* --- CHART CONTAINERS WITH FIXED GRAB CHANNELS --- */
-        .chart-wrapper-box {
+        /* --- PREMIUM CHART COMPONENT LAYOUT SHELL --- */
+        .ms-chart-shell {
             width: 100%;
-            max-width: 540px;
-            margin: 20px auto;
+            max-width: 520px;
+            margin: 16px 0;
             background: #ffffff;
-            padding: 10px;
-            border: 2px dashed #185abd;
-            border-radius: 8px;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            padding: 12px;
             position: relative;
-            transition: border-color 0.2s;
-        }
-        
-        .chart-wrapper-box:hover {
-            border-color: #ff5252;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            display: block; /* Managed smoothly via standard formatting wrappers */
         }
 
-        /* Dedicated movement handle header row */
-        .chart-drag-handle {
-            background-color: #f3f2f1;
-            border-bottom: 1px solid var(--border-color);
-            margin: -10px -10px 10px -10px;
-            padding: 6px 12px;
-            font-size: 11px;
-            font-weight: bold;
-            color: #666;
-            cursor: move;
+        .ms-chart-shell:hover {
+            border-color: #8a8886;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Floating Layout Positioner Menu Context Engine */
+        .chart-layout-menu {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top-left-radius: 6px;
-            border-top-right-radius: 6px;
-            user-select: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            z-index: 100;
         }
 
-        .chart-drag-handle:hover {
-            background-color: var(--hover-bg);
-            color: var(--ms-blue);
-        }
-
-        .chart-wrapper-box.dragging {
-            opacity: 0.3;
-            border-color: #ffb142;
-        }
-
-        canvas {
+        .chart-layout-menu button {
+            background: transparent;
+            border: none;
+            padding: 6px 10px;
+            font-size: 11px;
             cursor: pointer;
+            font-weight: 600;
+            color: #605e5c;
+            border-right: 1px solid #edebe9;
         }
 
-        /* --- LIGHTWEIGHT POPUP MODAL DATA EDITOR --- */
-        .custom-modal-backdrop {
+        .chart-layout-menu button:last-child {
+            border-right: none;
+        }
+
+        .chart-layout-menu button:hover {
+            background-color: #f3f2f1;
+            color: var(--word-blue);
+        }
+
+        .canvas-container-box {
+            width: 100%;
+            height: 240px;
+            margin-top: 24px;
+        }
+
+        /* --- THE INTEGRATED LIVE SPREADSHEET EDITOR DATA PANEL --- */
+        .spreadsheet-modal-backdrop {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.5);
-            z-index: 200000;
+            background: rgba(0,0,0,0.4);
+            z-index: 999999;
             justify-content: center;
             align-items: center;
         }
 
-        .modal-body-box {
+        .spreadsheet-container-box {
             background: white;
-            padding: 24px;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 460px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+            border: 1px solid #a19f9d;
+            overflow: hidden;
+            animation: paneSlideUp 0.15s ease-out;
         }
 
-        .modal-body-box h3 {
-            margin-bottom: 15px;
-            font-size: 16px;
-            color: var(--ms-blue);
+        @keyframes paneSlideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        .data-input-row {
+        .spreadsheet-header-row {
+            background: #107c41;
+            color: white;
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 14px;
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            justify-content: space-between;
             align-items: center;
         }
 
-        .data-input-row input {
-            padding: 8px;
-            font-size: 13px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            outline: none;
+        .spreadsheet-grid-body {
+            padding: 16px;
+            max-height: 320px;
+            overflow-y: auto;
+            background-color: #faf9f8;
         }
 
-        .data-input-row input[type="text"] { flex: 2; }
-        .data-input-row input[type="number"] { flex: 1; }
+        .excel-row-item {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
 
-        .modal-actions {
+        .excel-row-item span {
+            font-size: 12px;
+            font-weight: 600;
+            color: #605e5c;
+            width: 60px;
+        }
+
+        .excel-row-item input {
+            padding: 6px 10px;
+            font-size: 13px;
+            border: 1px solid var(--border-gray);
+            border-radius: 3px;
+            outline: none;
+            background: white;
+            font-family: inherit;
+        }
+
+        .excel-row-item input[type="text"] { flex: 2; font-weight: 600; }
+        .excel-row-item input[type="number"] { flex: 1; text-align: right; }
+        .excel-row-item input:focus { border-color: var(--word-blue); }
+
+        .excel-actions-footer {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-top: 18px;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f3f2f1;
+            border-top: 1px solid var(--border-gray);
         }
-
-        .modal-btn {
-            padding: 8px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 4px;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-
-        .modal-btn.save { background: var(--ms-blue); color: white; }
-        .modal-btn.cancel { background: #edebe9; color: var(--text-dark); border-color: var(--border-color); }
     </style>
 </head>
 <body>
 
-    <div id="intro-screen">
-        <div class="cinematic-text">ANTIFY</div>
-        <button type="button" class="skip-btn" onclick="document.getElementById('intro-screen').style.display='none'">Skip Intro &rarr;</button>
+    <div class="app-header">
+        <div class="app-title-group">
+            <div class="app-logo">W</div>
+            <span>Document1 - Word</span>
+        </div>
+        <div style="font-size: 12px; opacity: 0.9;">Saved to OneDrive</div>
     </div>
 
-    <div class="custom-modal-backdrop" id="editorModal">
-        <div class="modal-body-box">
-            <h3>📈 Edit Chart Data Details</h3>
-            <div id="inputRowsContainer"></div>
-            <div class="modal-actions">
-                <button class="modal-btn cancel" onclick="closeEditorModal()">Cancel</button>
-                <button class="modal-btn save" onclick="saveChartDataChanges()">Update Graph</button>
+    <div class="ribbon-container">
+        <div class="ribbon-tabs">
+            <div class="ribbon-tab active">Home</div>
+            <div class="dropdown-wrapper">
+                <div class="ribbon-tab" style="font-weight: 600; color: #107c41;" onclick="toggleMenuDropdown(event, 'insertMenu')">Insert ▾</div>
+                <div class="dropdown-menu" id="insertMenu">
+                    <button type="button" onclick="createNewChartComponent('bar')">📊 Column / Bar Chart</button>
+                    <button type="button" onclick="createNewChartComponent('pie')">🍕 Pie Value Chart</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="app-container">
-        <div class="header">
-            <span>Antify Word Processor</span>
-            <span style="font-size: 11px; opacity: 0.8;">Cloud Sandbox Engine</span>
-        </div>
+        <div class="toolbar">
+            <button class="btn btn-bold" title="Bold" onmousedown="preventFocusLoss(event)" onclick="executeWordCommand('bold')">B</button>
+            <button class="btn btn-italic" title="Italic" onmousedown="preventFocusLoss(event)" onclick="executeWordCommand('italic')">I</button>
+            <button class="btn btn-underline" title="Underline" onmousedown="preventFocusLoss(event)" onclick="executeWordCommand('underline')">U</button>
+            
+            <div class="divider"></div>
 
-        <div class="ribbon">
-            <div class="ribbon-tabs">
-                <div class="tab active">Home</div>
-                
-                <div class="chart-menu-container">
-                    <div class="tab" style="color: var(--ms-blue); font-weight: bold;" onclick="toggleChartDropdown(event)">📊 Insert Chart ▾</div>
-                    <div class="chart-dropdown-options" id="chartDropdownMenu">
-                        <button type="button" onclick="insertDirectChart('bar')">📊 Bar Chart</button>
-                        <button type="button" onclick="insertDirectChart('pie')">🍕 Pie Chart</button>
+            <div class="dropdown-wrapper">
+                <button class="btn" title="Text Highlight Color" onmousedown="preventFocusLoss(event)" onclick="toggleMenuDropdown(event, 'highlightPalette')">🖍️ Highlight ▾</button>
+                <div class="color-palette-grid" id="highlightPalette">
+                    <div class="color-swatch" style="background: #ffff00;" onclick="applyDocumentHighlight('#ffff00')"></div>
+                    <div class="color-swatch" style="background: #00ff00;" onclick="applyDocumentHighlight('#00ff00')"></div>
+                    <div class="color-swatch" style="background: #00ffff;" onclick="applyDocumentHighlight('#00ffff')"></div>
+                    <div class="color-swatch" style="background: #ff00ff;" onclick="applyDocumentHighlight('#ff00ff')"></div>
+                    <div class="color-swatch" style="background: #ffc0cb;" onclick="applyDocumentHighlight('#ffc0cb')"></div>
+                    <div class="color-swatch" style="background: transparent; border: 1px solid red; position: relative;" onclick="applyDocumentHighlight('transparent')">
+                        <span style="color:red; font-size:10px; position:absolute; top:2px; left:6px; font-weight:bold;">X</span>
                     </div>
                 </div>
             </div>
 
-            <div class="toolbar">
-                <div class="tool-group">
-                    <button class="tool-btn" title="Undo" onclick="executeAction('undo')">↩️</button>
-                    <button class="tool-btn" title="Redo" onclick="executeAction('redo')">↪️</button>
-                </div>
+            <div class="divider"></div>
 
-                <div class="tool-group">
-                    <select id="fontSizeSelection" onchange="changeSelectionFontSize(this.value)">
-                        <option value="12px">12px</option>
-                        <option value="16px" selected>16px</option>
-                        <option value="24px">24px</option>
-                        <option value="32px">32px</option>
-                    </select>
-                </div>
+            <button class="btn" title="Align Left" onmousedown="preventFocusLoss(event)" onclick="executeWordCommand('justifyLeft')">Align Left</button>
+            <button class="btn" title="Align Center" onmousedown="preventFocusLoss(event)" onclick="executeWordCommand('justifyCenter')">Center</button>
+            <button class="btn" title="Align Right" onmousedown="preventFocusLoss(event)" onclick="executeWordCommand('justifyRight')">Align Right</button>
+            <button class="btn" title="Justify" onmousedown="preventFocusLoss(event)" onclick="executeWordCommand('justifyFull')">Justify</button>
+        </div>
+    </div>
 
-                <div class="tool-group">
-                    <button class="tool-btn" style="font-weight:800;" title="Bold" onclick="executeAction('bold')">B</button>
-                    <button class="tool-btn" style="font-style:italic;" title="Italic" onclick="executeAction('italic')">I</button>
-                    <button class="tool-btn" style="text-decoration:underline;" title="Underline" onclick="executeAction('underline')">U</button>
-                    
-                    <div class="highlight-picker-wrapper">
-                        <button class="tool-btn" title="Text Highlight" onclick="toggleHighlightPalette(event)">🖍️</button>
-                        <div class="highlight-palette" id="textHighlightPalette">
-                            <div class="color-swatch" style="background:#ffff00;" onclick="applyHighlightColor('#ffff00')"></div>
-                            <div class="color-swatch" style="background:#00ff00;" onclick="applyHighlightColor('#00ff00')"></div>
-                            <div class="color-swatch" style="background:#00ffff;" onclick="applyHighlightColor('#00ffff')"></div>
-                            <div class="color-swatch" style="background:#ff00ff;" onclick="applyHighlightColor('#ff00ff')"></div>
-                            <div class="color-swatch" style="background:#ffc0cb;" onclick="applyHighlightColor('#ffc0cb')"></div>
-                            <div class="color-swatch" style="background:#ffa500;" onclick="applyHighlightColor('#ffa500')"></div>
-                            <div class="color-swatch" style="background:transparent; border:1px solid red; position:relative;" title="Clear Highlight" onclick="applyHighlightColor('transparent')"><span style="color:red; font-size:10px; position:absolute; top:-2px; left:5px;">x</span></div>
-                        </div>
-                    </div>
+    <div class="spreadsheet-modal-backdrop" id="excelDataModal">
+        <div class="spreadsheet-container-box">
+            <div class="spreadsheet-header-row">
+                <span>📊 Data in Microsoft Word - Chart Sheet</span>
+                <span style="cursor:pointer; font-weight:bold;" onclick="closeExcelSheetDataModal()">✕</span>
+            </div>
+            <div class="spreadsheet-grid-body" id="excelRowsTarget">
                 </div>
-
-                <div class="tool-group" style="border-right: none;">
-                    <button class="tool-btn" title="Align Left" onclick="executeAction('justifyLeft')">Left</button>
-                    <button class="tool-btn" title="Align Center" onclick="executeAction('justifyCenter')">Center</button>
-                    <button class="tool-btn" title="Align Right" onclick="executeAction('justifyRight')">Right</button>
-                    <button class="tool-btn" title="Justify Content" onclick="executeAction('justifyFull')">Justify</button>
-                </div>
+            <div class="excel-actions-footer">
+                <button class="btn" style="background:#edebe9;" onclick="closeExcelSheetDataModal()">Cancel</button>
+                <button class="btn" style="background:#107c41; color:white; font-weight:600;" onclick="saveExcelDataToActiveChart()">Apply Changes</button>
             </div>
         </div>
+    </div>
 
-        <div class="workspace">
-            <div class="page" id="text-canvas" contenteditable="true" spellcheck="true">
-                <p>Welcome to Antify Docs! Start writing your document here...</p>
-            </div>
+    <div class="workspace-scroll-container">
+        <div class="document-page" id="wordDocumentCanvas" contenteditable="true" spellcheck="true">
+            <p>Welcome to Microsoft Word online sandbox engine. Start drafting, modifying text blocks, or adding analytical visual chart datasets instantly.</p>
         </div>
     </div>
 
     <script>
-        const chartStorageRegistry = {};
-        let activeTargetChartId = null;
+        const activeChartRegistry = {};
+        let systemFocusedChartId = null;
 
-        function executeAction(command, value = null) {
-            document.
+        // CRITICAL MOUSE EVENT PREVENTIONS: Stops the ribbon buttons from stealing text cursor context data
+        function preventFocusLoss(event) {
+            event.preventDefault();
+        }
+
+        function executeWordCommand(command, parameter = null) {
+            document.execCommand(command, false, parameter);
+            document.getElementById('wordDocumentCanvas').focus();
+        }
+
+        /* --- STABLE CROSS-PLATFORM TEXT HIGHLIGHT ENGINE --- */
+        function applyDocumentHighlight(colorValue) {
+            document.getElementById('highlightPalette').style.display = 'none';
+            document.getElementById('wordDocumentCanvas').focus();
+
+            if (colorValue === 'transparent') {
+                document.execCommand('removeFormat', false, null);
+                return;
+            }
+
+            // Fallback for execution logic variations across modern browser environments
+            if (!document.execCommand('hiliteColor', false, colorValue)) {
+                document.execCommand('backColor', false, colorValue);
+            }
+        }
+
+        /* --- INTERFACE DROP MENU CONTROLS --- */
+        function toggleMenuDropdown(event, menuElementId) {
+            event.stopPropagation();
+            const targetMenu = document.getElementById(menuElementId);
+            const clearState = targetMenu.style.display === 'block' || targetMenu.style.display === 'grid';
+            
+            // Re-zero all menu system elements
+            document.getElementById('insertMenu').style.display = 'none';
+            document.getElementById('highlightPalette').style.display = 'none';
+
+            if (!clearState) {
+                targetMenu.style.display = (menuElementId === 'highlightPalette') ? 'grid' : 'block';
+            }
+        }
+
+        window.addEventListener('click', () => {
+            document.getElementById('insertMenu').style.display = 'none';
+            document.getElementById('highlightPalette').style.display = 'none';
+        });
+
+        /* --- MICROSOFT WORD LIVE OBJECT INJECTION ENGINE --- */
+        function createNewChartComponent(chartType) {
+            document.getElementById('insertMenu').style.display = 'none';
+            const textCanvas = document.getElementById('wordDocumentCanvas');
+            const uniqueId = 'ms-chart-' + Date.now();
+
+            const defaultLabels = ['Q1 Metrics', 'Q2 Metrics', 'Q3 Metrics', 'Q4 Metrics'];
+            const defaultValues = [35, 55, 20, 75];
+
+            // Setup alignment wrapper element container shell
+            const inlineWrapper = document.createElement('div');
+            inlineWrapper.style.textAlign = 'left'; 
+            inlineWrapper.style.width = '100%';
+
+            const shellContainer = document.createElement('div');
+            shellContainer.className = 'ms-chart-shell';
+            shellContainer.setAttribute('contenteditable', 'false');
+            shellContainer.id = uniqueId + '-shell';
+
+            // Floating Layout Positioning Control Toolbar Setup
+            const inlineLayoutMenu = document.createElement('div');
+            inlineLayoutMenu.className = 'chart-layout-menu';
+            inlineLayoutMenu.innerHTML = `
+                <button type="button" onclick="modifyChartAlignment('${uniqueId}', 'left')">Left</button>
+                <button type="button" onclick="modifyChartAlignment('${uniqueId}', 'center')">Center</button>
+                <button type="button" onclick="modifyChartAlignment('${uniqueId}', 'right')">Right</button>
+                <button type="button" style="color:#107c41; font-weight:bold;" onclick="launchSpreadsheetModal('${uniqueId}')">📊 Edit Sheet Data</button>
+            `;
+            shellContainer.appendChild(inlineLayoutMenu);
+
+            // Responsive Canvas Rendering Frame Base
+            const frameBox = document.createElement('div');
+            frameBox.className = 'canvas-container-box';
+            
+            const rawCanvas = document.createElement('canvas');
+            rawCanvas.id = uniqueId;
+            frameBox.appendChild(rawCanvas);
+            shellContainer.appendChild(frameBox);
+            inlineWrapper.appendChild(shellContainer);
+
+            // Carriage return line spacing setup to allow continuous typing flow
+            const textBreakParagraph = document.createElement('p');
+            textBreakParagraph.innerHTML = '<br>';
+
+            // Safely inject components directly inside live user selection node tags
+            const userSelection = window.getSelection();
+            if (userSelection.rangeCount > 0 && textCanvas.contains(userSelection.getRangeAt(0).startContainer)) {
+                const range = userSelection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(textBreakParagraph);
+                range.insertNode(inlineWrapper);
+            } else {
+                textCanvas.appendChild(inlineWrapper);
+                textCanvas.appendChild(textBreakParagraph);
+            }
+
+            // Fire Chart instantiation loops smoothly downstream
+            setTimeout(() => {
+                const targetCanvasCtx = document.getElementById(uniqueId).getContext('2d');
+                const instantiatedChartObj = new Chart(targetCanvasCtx, {
+                    type: chartType,
+                    data: {
+                        labels: defaultLabels,
+                        datasets: [{
+                            label: 'Workbook Sheet Record Value Scale',
+                            data: defaultValues,
+                            backgroundColor: ['#107c41', '#258b53', '#4ca173', '#79b896'],
+                            borderWidth: 1,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: (chartType === 'pie'), position: 'bottom' }
+                        }
+                    }
+                });
+
+                activeChartRegistry[uniqueId] = {
+                    instance: instantiatedChartObj,
+                    type: chartType,
+                    labels: defaultLabels,
+                    values: defaultValues
+                };
+            }, 40);
+        }
+
+        /* --- CHART LAYOUT ALIGNMENT CONTROLLER --- */
+        function modifyChartAlignment(chartId, alignmentDirection) {
+            const chartShell = document.getElementById(chartId + '-shell');
+            if (chartShell && chartShell.parentElement) {
+                chartShell.parentElement.style.textAlign = alignmentDirection;
+                
+                // Fine-tune formatting element margins for perfect layouts
+                if (alignmentDirection === 'left') {
+                    chartShell.style.margin = '16px 0';
+                } else if (alignmentDirection === 'center') {
+                    chartShell.style.margin = '16px auto';
+                } else if (alignmentDirection === 'right') {
+                    chartShell.style.margin = '16px 0 16px auto';
+                }
+            }
+        }
+
+        /* --- DATA DIALOG SPAN CONTROLLERS (EXCEL CELLS MODE) --- */
+        function launchSpreadsheetModal(chartId) {
+            systemFocusedChartId = chartId;
+            const contextDataModel = activeChartRegistry[chartId];
+            if (!contextDataModel) return;
+
+            const interactiveContainer = document.getElementById('excelRowsTarget');
+            interactiveContainer.innerHTML = '';
+
+            contextDataModel.labels.forEach((labelString, arrayIndex) => {
+                const associatedNumericalValue = contextDataModel.values[arrayIndex];
+                const spreadsheetRowNode = document.createElement('div');
+                spreadsheetRowNode.className = 'excel-row-item';
+                spreadsheetRowNode.innerHTML = `
+                    <span>Cell A${arrayIndex + 1}:</span>
+                    <input type="text" value="${labelString}" id="excel-lbl-${arrayIndex}" placeholder="Label Name">
+                    <input type="number" value="${associatedNumericalValue}" id="excel-val-${arrayIndex}" placeholder="Value">
+                `;
+                interactiveContainer.appendChild(spreadsheetRowNode);
+            });
+
+            document.getElementById('excelDataModal').style.display = 'flex';
+        }
+
+        function closeExcelSheetDataModal() {
+            document.getElementById('excelDataModal').style.display = 'none';
+            systemFocusedChartId = null;
+        }
+
+        function saveExcelDataToActiveChart() {
+            if (!systemFocusedChartId) return;
+            const liveChartConfiguration = activeChartRegistry[systemFocusedChartId];
+            if (!liveChartConfiguration) return;
+
+            const readLabels = [];
+            const readValues = [];
+
+            liveChartConfiguration.labels.forEach((_, elementIndex) => {
+                const finalLabelText = document.getElementById(`excel-lbl-${elementIndex}`).value.trim();
+                const finalNumericalValue = parseFloat(document.getElementById(`excel-val-${elementIndex}`).value);
+
+                readLabels.push(finalLabelText || `Item ${elementIndex + 1}`);
+                readValues.push(isNaN(finalNumericalValue) ? 0 : finalNumericalValue);
+            });
+
+            // Commit back structural data models inside operational registry map stores
+            liveChartConfiguration.labels = readLabels;
+            liveChartConfiguration.values = readValues;
+
+            // Trigger canvas rendering calculations downstream to repaint the dataset UI graph
+            liveChartConfiguration.instance.data.labels = readLabels;
+            liveChartConfiguration.instance.data.datasets[0].data = readValues;
+            liveChartConfiguration.instance.update();
+
+            closeExcelSheetDataModal();
+        }
+    </script>
+</body>
+</html>
