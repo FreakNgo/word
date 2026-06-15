@@ -52,6 +52,7 @@
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
+            position: relative; /* Anchor for absolute child menus */
         }
 
         .ribbon-tabs {
@@ -82,29 +83,45 @@
         .insert-dropdown {
             position: relative;
             display: inline-block;
+            height: 100%;
         }
 
+        .insert-tab-btn {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* FIX: Absolute positioning prevents dropdown from breaking the toolbar structure */
         .dropdown-menu {
             display: none;
             position: absolute;
             top: 100%;
-            left: 0;
+            left: 12px;
             background: white;
             border: 1px solid var(--border-muted);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 99999;
             padding: 4px 0;
             min-width: 140px;
+            border-radius: 4px;
         }
 
         .dropdown-menu button {
             width: 100%;
-            padding: 8px 12px;
+            padding: 10px 14px;
             background: transparent;
             border: none;
             text-align: left;
             font-size: 13px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .dropdown-menu button:hover { background-color: #f3f2f1; }
@@ -117,6 +134,7 @@
             padding: 8px 16px;
             background-color: #f3f2f1;
             border-bottom: 1px solid var(--border-muted);
+            height: 44px;
         }
 
         .divider {
@@ -129,7 +147,7 @@
         select {
             padding: 4px 8px;
             border: 1px solid var(--border-muted);
-            border-radius: 2px;
+            border-radius: 4px;
             background: white;
             font-size: 13px;
             height: 28px;
@@ -148,6 +166,7 @@
             height: 28px;
             font-size: 13px;
             color: var(--text-dark);
+            border-radius: 4px;
         }
 
         .btn:hover { background-color: #edebe9; border-color: #bbb; }
@@ -174,12 +193,47 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
             outline: none;
             font-size: 16px;
-            line-height: 1.5;
-            color: #000000;
+            line-height: 1.6;
+            color: #111111;
             word-wrap: break-word;
         }
 
-        /* --- EXACT MATCH CHART SHELL AS SEEN IN SCREENSHOT --- */
+        /* --- INTRO SECTION DESIGN SYSTEM --- */
+        .intro-container {
+            background: #f8f9fa;
+            border-left: 4px solid var(--office-blue);
+            padding: 20px;
+            margin-bottom: 32px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .intro-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--office-blue);
+            margin-bottom: 8px;
+        }
+
+        .intro-text {
+            font-size: 15px;
+            color: #4a4a4a;
+            margin-bottom: 12px;
+        }
+
+        .features-list {
+            list-style-type: none;
+            padding-left: 4px;
+        }
+
+        .features-list li {
+            margin-bottom: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- EXACT MATCH CHART SHELL --- */
         .ms-chart-shell {
             width: 100%;
             max-width: 500px;
@@ -213,7 +267,7 @@
             margin-top: 10px;
         }
 
-        /* --- INTEGRATED EXCEL MODAL --- */
+        /* --- SPREADSHEET EDITOR MODAL --- */
         .spreadsheet-modal-backdrop {
             display: none;
             position: fixed;
@@ -290,7 +344,7 @@
         <div class="ribbon-tabs">
             <div class="ribbon-tab active">Home</div>
             <div class="insert-dropdown">
-                <div class="ribbon-tab" style="font-weight: bold;" onclick="toggleInsertMenu(event)">📊 Insert Chart ▾</div>
+                <div class="insert-tab-btn" style="font-weight: bold; color: var(--office-blue);" onclick="toggleInsertMenu(event)">📊 Insert Chart ▾</div>
                 <div class="dropdown-menu" id="insertMenu">
                     <button type="button" onclick="insertChart('bar')">📊 Bar Chart</button>
                     <button type="button" onclick="insertChart('pie')">🍕 Pie Chart</button>
@@ -344,7 +398,16 @@
 
     <div class="workspace-scroll-container">
         <div class="document-page" id="wordDocumentCanvas" contenteditable="true" spellcheck="false">
-            <p>Welcome to Antify Docs! Start writing your document here...</p>
+            <div class="intro-container" contenteditable="false">
+                <div class="intro-title">Welcome to Antify Docs Suite</div>
+                <div class="intro-text">A professional-grade live editing environment crafted for lightning-fast rich text rendering, custom font typography controls, and dynamic real-time data calculations.</div>
+                <ul class="features-list">
+                    <li>⚡ <strong>Live Data Mapping:</strong> Update values inside the live mini-spreadsheet to re-render charts instantly.</li>
+                    <li>🎨 <strong>Typography Workspace:</strong> Seamlessly switch between enterprise-level font families and scales.</li>
+                    <li>↩️ <strong>Safety Mechanics:</strong> Fully integrated historic stack states supporting complete undo/redo loops.</li>
+                </ul>
+            </div>
+            <p>Start customizing your records or writing down notes here. Highlight strings of text to modify fonts on the fly, or head to the top insert menu to instantiate data dashboards.</p>
         </div>
     </div>
 
@@ -357,7 +420,6 @@
             document.getElementById('wordDocumentCanvas').focus();
         }
 
-        /* --- BULLETPROOF TEXT SIZE CONFIGURATOR --- */
         function alterFontSize(sizeValue) {
             document.getElementById('wordDocumentCanvas').focus();
             const selection = window.getSelection();
@@ -385,7 +447,6 @@
             document.getElementById('insertMenu').style.display = 'none';
         });
 
-        /* --- DYNAMIC CHART GENERATOR MATRIX --- */
         function insertChart(type) {
             document.getElementById('insertMenu').style.display = 'none';
             const canvasElement = document.getElementById('wordDocumentCanvas');
@@ -399,7 +460,6 @@
             shell.setAttribute('contenteditable', 'false');
             shell.id = uniqueChartId + '-shell';
 
-            // Exact match blue helper badge button layout
             const badge = document.createElement('div');
             badge.className = 'chart-edit-badge';
             badge.innerHTML = '⚡ Click Graph to Edit Names & %';
@@ -414,7 +474,6 @@
             containerBox.appendChild(nativeCanvas);
             shell.appendChild(containerBox);
 
-            // Clean line return mapping to enable natural typing below chart components
             const spacingBreak = document.createElement('p');
             spacingBreak.innerHTML = '<br>';
 
@@ -428,6 +487,7 @@
                     data: {
                         labels: labels.map((l, i) => `${l}: ${dataValues[i]} (${Math.round((dataValues[i]/164)*100)}%)`),
                         datasets: [{
+                            label: 'Metrics Volume Summary', /* FIX: Replaced 'undefined' label string with a default title context */
                             data: dataValues,
                             backgroundColor: ['#0f52ba', '#34a853', '#ff6b81', '#4dbdbe'],
                             borderWidth: 1
@@ -437,7 +497,7 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            title: { display: true, text: 'Bar Analysis Metrics Display', font: { size: 14, weight: 'bold' } },
+                            title: { display: true, text: 'Metrics Distribution Analysis', font: { size: 14, weight: 'bold' } },
                             legend: { position: 'bottom' }
                         }
                     }
@@ -452,7 +512,6 @@
             }, 50);
         }
 
-        /* --- MODAL WORKBOOK CONTROLLERS --- */
         function openModal(chartId) {
             globallyTrackedChartId = chartId;
             const targetData = chartStorageRegistry[chartId];
@@ -500,7 +559,6 @@
             targetObj.labels = newLabels;
             targetObj.values = newValues;
 
-            // Re-render strings inside chart view matching precise presentation
             targetObj.instance.data.labels = newLabels.map((l, i) => {
                 const percentage = totalSum > 0 ? Math.round((newValues[i] / totalSum) * 100) : 0;
                 return `${l}: ${newValues[i]} (${percentage}%)`;
